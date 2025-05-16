@@ -2623,6 +2623,102 @@ void Viewport::_gui_update_mouse_over() {
 	gui.sending_mouse_enter_exit_notifications = false;
 }
 
+void Viewport::_gui_update_touch_over() {
+	if (gui.touch_over == nullptr || gui.touch_over_hierarchy.is_empty()) {
+		return;
+	}
+
+	if (gui.sending_touch_enter_exit_notifications) {
+		// If notifications are already being sent, delay call to next frame.
+		if (get_tree() && !get_tree()->is_connected(SNAME("process_frame"), callable_mp(this, &Viewport::_gui_update_touch_over))) {
+			get_tree()->connect(SNAME("process_frame"), callable_mp(this, &Viewport::_gui_update_touch_over), CONNECT_ONE_SHOT);
+		}
+		return;
+	}
+
+	// Rebuild the mouse over hierarchy.
+	LocalVector<Control *> new_touch_over_hierarchy;
+	LocalVector<Control *> needs_enter;
+	LocalVector<int> needs_exit;
+
+	CanvasItem *ancestor = gui.touch_over;
+	bool removing = false;
+	bool reached_top = false;
+	while (ancestor) {
+		Control *ancestor_control = Object::cast_to<Control>(ancestor);
+		if (ancestor_control) {
+			int found = gui.touch_over_hierarchy.find(ancestor_control);
+			if (found >= 0) {
+				// Remove the node if the propagation chain has been broken or it is now INPUT_FILTER_IGNORE.
+				if (removing || ancestor_control->get_touch_filter_with_override() == Control::INPUT_FILTER_IGNORE) {
+					needs_exit.push_back(found);
+				}
+			}
+			if (found == 0) {
+				if (removing) {
+					// Stop if the chain has been broken and the top of the hierarchy has been reached.
+					break;
+				}
+				reached_top = true;
+			}
+			if (!removing && ancestor_control->get_touch_filter_with_override() != Control::INPUT_FILTER_IGNORE) {
+				new_touch_over_hierarchy.push_back(ancestor_control);
+				// Add the node if it was not found and it is now not INPUT_FILTER_IGNORE.
+				if (found < 0) {
+					needs_enter.push_back(ancestor_control);
+				}
+			}
+			if (ancestor_control->get_touch_filter_with_override() == Control::INPUT_FILTER_STOP) {
+				// INPUT_FILTER_STOP breaks the propagation chain.
+				if (reached_top) {
+					break;
+				}
+				removing = true;
+			}
+		}
+		if (ancestor->is_set_as_top_level()) {
+			// Top level breaks the propagation chain.
+			if (reached_top) {
+				break;
+			} else {
+				removing = true;
+				ancestor = Object::cast_to<CanvasItem>(ancestor->get_parent());
+				continue;
+			}
+		}
+		ancestor = ancestor->get_parent_item();
+	}
+	if (needs_exit.is_empty() && needs_enter.is_empty()) {
+		return;
+	}
+
+	gui.sending_touch_enter_exit_notifications = true;
+
+	// Send Mouse Exit Self notification.
+	if (gui.touch_over && !needs_exit.is_empty() && needs_exit[0] == (int)gui.touch_over_hierarchy.size() - 1) {
+		gui.touch_over->notification(Control::NOTIFICATION_TOUCH_EXIT_SELF);
+		gui.touch_over = nullptr;
+	}
+
+	// Send Mouse Exit notifications.
+	for (int exit_control_index : needs_exit) {
+		gui.touch_over_hierarchy[exit_control_index]->notification(Control::NOTIFICATION_TOUCH_EXIT);
+	}
+
+	// Update the mouse over hierarchy.
+	gui.touch_over_hierarchy.resize(new_touch_over_hierarchy.size());
+	for (int i = 0; i < (int)new_touch_over_hierarchy.size(); i++) {
+		gui.touch_over_hierarchy[i] = new_touch_over_hierarchy[new_touch_over_hierarchy.size() - 1 - i];
+	}
+
+	// Send Mouse Enter notifications.
+	for (int i = needs_enter.size() - 1; i >= 0; i--) {
+		needs_enter[i]->notification(Control::NOTIFICATION_TOUCH_ENTER);
+	}
+
+	gui.sending_touch_enter_exit_notifications = false;
+}
+
 Window *Viewport::get_base_window() {
 	ERR_READ_THREAD_GUARD_V(nullptr);
 	ERR_FAIL_COND_V(!is_inside_tree(), nullptr);

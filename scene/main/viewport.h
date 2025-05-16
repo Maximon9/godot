@@ -367,16 +367,23 @@ private:
 	Ref<Texture2D> vrs_texture;
 
 	struct GUI {
-		bool mouse_in_viewport = false;
 		HashMap<int, ObjectID> touch_focus;
-		Control *mouse_focus = nullptr;
-		Control *mouse_click_grabber = nullptr;
 		BitField<MouseButtonMask> mouse_focus_mask = MouseButtonMask::NONE;
 		Control *key_focus = nullptr;
+
+		bool mouse_in_viewport = false;
+		Control *mouse_focus = nullptr;
+		Control *mouse_click_grabber = nullptr;
 		Control *mouse_over = nullptr;
-		Control *touch_over = nullptr;
 		LocalVector<Control *> mouse_over_hierarchy;
 		bool sending_mouse_enter_exit_notifications = false;
+
+		bool touch_in_viewport = false;
+		Control *touch_click_grabber = nullptr;
+		Control *touch_over = nullptr;
+		LocalVector<Control *> touch_over_hierarchy;
+		bool sending_touch_enter_exit_notifications = false;
+
 		Window *subwindow_over = nullptr; // mouse_over and subwindow_over are mutually exclusive. At all times at least one of them is nullptr.
 		Window *windowmanager_window_over = nullptr; // Only used in root Viewport.
 		Control *drag_mouse_over = nullptr;
@@ -450,6 +457,7 @@ private:
 	void _gui_remove_control(Control *p_control);
 	void _gui_hide_control(Control *p_control);
 	void _gui_update_mouse_over();
+	void _gui_update_touch_over();
 
 	void _gui_force_drag_start();
 	void _gui_force_drag_cancel();
