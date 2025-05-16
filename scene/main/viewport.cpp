@@ -751,7 +751,7 @@ void Viewport::_process_picking() {
 #endif // PHYSICS_2D_DISABLED
 
 	SubViewportContainer *parent_svc = Object::cast_to<SubViewportContainer>(get_parent());
-	bool parent_ignore_mouse = (parent_svc && parent_svc->get_mouse_filter_with_override() == Control::MOUSE_FILTER_IGNORE);
+	bool parent_ignore_mouse = (parent_svc && parent_svc->get_mouse_filter_with_override() == Control::INPUT_FILTER_IGNORE);
 	bool create_passive_hover_event = true;
 	if (gui.mouse_over || parent_ignore_mouse) {
 		// When the mouse is over a Control node, passive hovering would cause input events for Colliders, that are behind Control nodes.
@@ -1550,7 +1550,7 @@ String Viewport::_gui_get_tooltip(Control *p_control, const Vector2 &p_pos, Cont
 
 		// Otherwise, we check parent controls unless some conditions prevent it.
 
-		if (p_control->get_mouse_filter_with_override() == Control::MOUSE_FILTER_STOP) {
+		if (p_control->get_mouse_filter_with_override() == Control::INPUT_FILTER_STOP) {
 			break;
 		}
 		if (p_control->is_set_as_top_level()) {
@@ -1721,15 +1721,15 @@ void Viewport::_gui_call_input(Control *p_control, const Ref<InputEvent> &p_inpu
 	while (ci) {
 		Control *control = Object::cast_to<Control>(ci);
 		if (control) {
-			if (control->get_mouse_filter_with_override() != Control::MOUSE_FILTER_IGNORE) {
+			if (control->get_mouse_filter_with_override() != Control::INPUT_FILTER_IGNORE) {
 				control->_call_gui_input(ev);
 			}
 
 			if (!control->is_inside_tree() || control->is_set_as_top_level()) {
 				break;
 			}
-			if (control->get_mouse_filter_with_override() == Control::MOUSE_FILTER_STOP && is_pointer_event && !(is_scroll_event && control->data.force_pass_scroll_events)) {
-				// Mouse, ScreenDrag and ScreenTouch events are stopped by default with MOUSE_FILTER_STOP, unless we have a scroll event and force_pass_scroll_events set to true
+			if (control->get_mouse_filter_with_override() == Control::INPUT_FILTER_STOP && is_pointer_event && !(is_scroll_event && control->data.force_pass_scroll_events)) {
+				// Mouse, ScreenDrag and ScreenTouch events are stopped by default with INPUT_FILTER_STOP, unless we have a scroll event and force_pass_scroll_events set to true
 				set_input_as_handled();
 				break;
 			}
@@ -1754,7 +1754,7 @@ void Viewport::_gui_call_notification(Control *p_control, int p_what) {
 	while (ci) {
 		Control *control = Object::cast_to<Control>(ci);
 		if (control) {
-			if (control->get_mouse_filter_with_override() != Control::MOUSE_FILTER_IGNORE) {
+			if (control->get_mouse_filter_with_override() != Control::INPUT_FILTER_IGNORE) {
 				control->notification(p_what);
 			}
 
@@ -1765,7 +1765,7 @@ void Viewport::_gui_call_notification(Control *p_control, int p_what) {
 			if (!control->is_inside_tree() || control->is_set_as_top_level()) {
 				break;
 			}
-			if (control->get_mouse_filter_with_override() == Control::MOUSE_FILTER_STOP) {
+			if (control->get_mouse_filter_with_override() == Control::INPUT_FILTER_STOP) {
 				break;
 			}
 		}
@@ -1835,7 +1835,7 @@ Control *Viewport::_gui_find_control_at_pos(CanvasItem *p_node, const Point2 &p_
 		}
 	}
 
-	if (!c || c->get_mouse_filter_with_override() == Control::MOUSE_FILTER_IGNORE) {
+	if (!c || c->get_mouse_filter_with_override() == Control::INPUT_FILTER_IGNORE) {
 		return nullptr;
 	}
 
@@ -1867,7 +1867,7 @@ bool Viewport::_gui_drop(Control *p_at_control, Point2 p_at_pos, bool p_just_che
 				return true;
 			}
 
-			if (control->get_mouse_filter_with_override() == Control::MOUSE_FILTER_STOP) {
+			if (control->get_mouse_filter_with_override() == Control::INPUT_FILTER_STOP) {
 				break;
 			}
 		}
@@ -1942,7 +1942,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 							break;
 						}
 
-						if (control->get_mouse_filter_with_override() == Control::MOUSE_FILTER_STOP) {
+						if (control->get_mouse_filter_with_override() == Control::INPUT_FILTER_STOP) {
 							break;
 						}
 					}
@@ -2028,7 +2028,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 								section_root->gui.global_dragging = false;
 							}
 
-							if (control->get_mouse_filter_with_override() == Control::MOUSE_FILTER_STOP) {
+							if (control->get_mouse_filter_with_override() == Control::INPUT_FILTER_STOP) {
 								break;
 							}
 						}
@@ -2120,7 +2120,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 					if (cursor_shape != Control::CURSOR_ARROW) {
 						break;
 					}
-					if (c->get_mouse_filter_with_override() == Control::MOUSE_FILTER_STOP) {
+					if (c->get_mouse_filter_with_override() == Control::INPUT_FILTER_STOP) {
 						break;
 					}
 					if (c->is_set_as_top_level()) {
@@ -2553,8 +2553,8 @@ void Viewport::_gui_update_mouse_over() {
 		if (ancestor_control) {
 			int found = gui.mouse_over_hierarchy.find(ancestor_control);
 			if (found >= 0) {
-				// Remove the node if the propagation chain has been broken or it is now MOUSE_FILTER_IGNORE.
-				if (removing || ancestor_control->get_mouse_filter_with_override() == Control::MOUSE_FILTER_IGNORE) {
+				// Remove the node if the propagation chain has been broken or it is now INPUT_FILTER_IGNORE.
+				if (removing || ancestor_control->get_mouse_filter_with_override() == Control::INPUT_FILTER_IGNORE) {
 					needs_exit.push_back(found);
 				}
 			}
@@ -2565,15 +2565,15 @@ void Viewport::_gui_update_mouse_over() {
 				}
 				reached_top = true;
 			}
-			if (!removing && ancestor_control->get_mouse_filter_with_override() != Control::MOUSE_FILTER_IGNORE) {
+			if (!removing && ancestor_control->get_mouse_filter_with_override() != Control::INPUT_FILTER_IGNORE) {
 				new_mouse_over_hierarchy.push_back(ancestor_control);
-				// Add the node if it was not found and it is now not MOUSE_FILTER_IGNORE.
+				// Add the node if it was not found and it is now not INPUT_FILTER_IGNORE.
 				if (found < 0) {
 					needs_enter.push_back(ancestor_control);
 				}
 			}
-			if (ancestor_control->get_mouse_filter_with_override() == Control::MOUSE_FILTER_STOP) {
-				// MOUSE_FILTER_STOP breaks the propagation chain.
+			if (ancestor_control->get_mouse_filter_with_override() == Control::INPUT_FILTER_STOP) {
+				// INPUT_FILTER_STOP breaks the propagation chain.
 				if (reached_top) {
 					break;
 				}
@@ -3233,7 +3233,7 @@ void Viewport::_update_mouse_over(Vector2 p_pos) {
 			while (ancestor) {
 				Control *ancestor_control = Object::cast_to<Control>(ancestor);
 				if (ancestor_control) {
-					if (ancestor_control->get_mouse_filter_with_override() != Control::MOUSE_FILTER_IGNORE) {
+					if (ancestor_control->get_mouse_filter_with_override() != Control::INPUT_FILTER_IGNORE) {
 						int found = gui.mouse_over_hierarchy.find(ancestor_control);
 						if (found >= 0) {
 							common_ancestor = gui.mouse_over_hierarchy[found];
@@ -3241,8 +3241,8 @@ void Viewport::_update_mouse_over(Vector2 p_pos) {
 						}
 						over_ancestors.push_back(ancestor_control);
 					}
-					if (ancestor_control->get_mouse_filter_with_override() == Control::MOUSE_FILTER_STOP) {
-						// MOUSE_FILTER_STOP breaks the propagation chain.
+					if (ancestor_control->get_mouse_filter_with_override() == Control::INPUT_FILTER_STOP) {
+						// INPUT_FILTER_STOP breaks the propagation chain.
 						break;
 					}
 				}

@@ -84,16 +84,21 @@ public:
 		SIZE_EXPAND_FILL = SIZE_EXPAND | SIZE_FILL,
 	};
 
-	enum MouseFilter {
-		MOUSE_FILTER_STOP,
-		MOUSE_FILTER_PASS,
-		MOUSE_FILTER_IGNORE
+	// enum MouseFilter {
+	// 	MOUSE_FILTER_STOP,
+	// 	MOUSE_FILTER_PASS,
+	// 	MOUSE_FILTER_IGNORE
+	// };
+	enum InputFilter {
+		INPUT_FILTER_STOP = 0,
+		INPUT_FILTER_PASS = 1,
+		INPUT_FILTER_IGNORE = 2
 	};
 
-	enum MouseBehaviorRecursive {
-		MOUSE_BEHAVIOR_INHERITED,
-		MOUSE_BEHAVIOR_DISABLED,
-		MOUSE_BEHAVIOR_ENABLED,
+	enum InputBehaviorRecursive {
+		INPUT_BEHAVIOR_INHERITED,
+		INPUT_BEHAVIOR_DISABLED,
+		INPUT_BEHAVIOR_ENABLED,
 	};
 
 	enum CursorShape {
@@ -169,6 +174,25 @@ public:
 		TEXT_DIRECTION_INHERITED = TextServer::DIRECTION_INHERITED,
 	};
 
+	enum InputMode {
+		INPUT_MODE_TOUCH,
+		INPUT_MODE_MOUSE,
+		INPUT_MODE_BOTH,
+	};
+	enum VisibilityMode {
+		VISIBILITY_MODE_ON_MOUSE = 1 << 0, // 0b0001 = 1
+		VISIBILITY_MODE_ON_TOUCH = 1 << 1, // 0b0010 = 2
+		VISIBILITY_MODE_ON_MOUSE_INPUTS = 1 << 2, // 0b0100 = 4
+		VISIBILITY_MODE_ON_TOUCH_INPUTS = 1 << 3 // 0b1000 = 8
+	};
+
+	enum GizmoMode {
+		OFF,
+		EDITOR,
+		GAME,
+		BOTH
+	};
+
 private:
 	struct CComparator {
 		bool operator()(const Control *p_a, const Control *p_b) const {
@@ -232,10 +256,15 @@ private:
 
 		// Input events and rendering.
 
-		MouseFilter mouse_filter = MOUSE_FILTER_STOP;
-		MouseBehaviorRecursive mouse_behavior_recursive = MOUSE_BEHAVIOR_INHERITED;
+		InputFilter mouse_filter = INPUT_FILTER_STOP;
+		InputBehaviorRecursive mouse_behavior_recursive = INPUT_BEHAVIOR_INHERITED;
 		bool parent_mouse_behavior_recursive_enabled = true;
 		bool force_pass_scroll_events = true;
+
+		InputFilter touch_filter = INPUT_FILTER_STOP;
+		InputBehaviorRecursive touch_behavior_recursive = INPUT_BEHAVIOR_INHERITED;
+		bool parent_touch_behavior_recursive_enabled = true;
+		bool force_pass_drag_events = true;
 
 		bool clip_contents = false;
 		bool disable_visibility_clip = false;
@@ -334,6 +363,11 @@ private:
 	bool _is_mouse_filter_enabled() const;
 	void _update_mouse_behavior_recursive();
 	void _propagate_mouse_behavior_recursive_recursively(bool p_enabled, bool p_skip_non_inherited);
+
+	// Touch Filter.
+	bool _is_touch_filter_enabled() const;
+	void _update_touch_behavior_recursive();
+	void _propagate_touch_behavior_recursive_recursively(bool p_enabled, bool p_skip_non_inherited);
 
 	// Focus.
 
@@ -546,15 +580,25 @@ public:
 
 	virtual bool has_point(const Point2 &p_point) const;
 
-	void set_mouse_filter(MouseFilter p_filter);
-	MouseFilter get_mouse_filter() const;
-	MouseFilter get_mouse_filter_with_override() const;
+	void set_mouse_filter(InputFilter p_filter);
+	InputFilter get_mouse_filter() const;
+	InputFilter get_mouse_filter_with_override() const;
 
-	void set_mouse_behavior_recursive(MouseBehaviorRecursive p_mouse_behavior_recursive);
-	MouseBehaviorRecursive get_mouse_behavior_recursive() const;
+	void set_mouse_behavior_recursive(InputBehaviorRecursive p_mouse_behavior_recursive);
+	InputBehaviorRecursive get_mouse_behavior_recursive() const;
+
+	void set_touch_filter(InputFilter p_filter);
+	InputFilter get_touch_filter() const;
+	InputFilter get_touch_filter_with_override() const;
+
+	void set_touch_behavior_recursive(InputBehaviorRecursive p_mouse_behavior_recursive);
+	InputBehaviorRecursive get_touch_behavior_recursive() const;
 
 	void set_force_pass_scroll_events(bool p_force_pass_scroll_events);
 	bool is_force_pass_scroll_events() const;
+
+	void set_force_pass_drag_events(bool p_force_pass_drag_events);
+	bool is_force_pass_drag_events() const;
 
 	void warp_mouse(const Point2 &p_position);
 
@@ -703,12 +747,12 @@ public:
 
 VARIANT_ENUM_CAST(Control::FocusMode);
 VARIANT_ENUM_CAST(Control::FocusBehaviorRecursive);
-VARIANT_ENUM_CAST(Control::MouseBehaviorRecursive);
+VARIANT_ENUM_CAST(Control::InputBehaviorRecursive);
 VARIANT_BITFIELD_CAST(Control::SizeFlags);
 VARIANT_ENUM_CAST(Control::CursorShape);
 VARIANT_ENUM_CAST(Control::LayoutPreset);
 VARIANT_ENUM_CAST(Control::LayoutPresetMode);
-VARIANT_ENUM_CAST(Control::MouseFilter);
+VARIANT_ENUM_CAST(Control::InputFilter);
 VARIANT_ENUM_CAST(Control::GrowDirection);
 VARIANT_ENUM_CAST(Control::Anchor);
 VARIANT_ENUM_CAST(Control::LayoutMode);

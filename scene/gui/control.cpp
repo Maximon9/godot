@@ -241,7 +241,7 @@ PackedStringArray Control::get_configuration_warnings() const {
 	ERR_READ_THREAD_GUARD_V(PackedStringArray());
 	PackedStringArray warnings = CanvasItem::get_configuration_warnings();
 
-	if (data.mouse_filter == MOUSE_FILTER_IGNORE && !data.tooltip.is_empty()) {
+	if (data.mouse_filter == INPUT_FILTER_IGNORE && data.touch_filter == INPUT_FILTER_IGNORE && !data.tooltip.is_empty()) {
 		warnings.push_back(RTR("The Hint Tooltip won't be displayed as the control's Mouse Filter is set to \"Ignore\". To solve this, set the Mouse Filter to \"Stop\" or \"Pass\"."));
 	}
 
@@ -507,7 +507,14 @@ void Control::_validate_property(PropertyInfo &p_property) const {
 
 	if (p_property.name == "mouse_force_pass_scroll_events") {
 		// Disable force pass if the control is not stopping the event.
-		if (data.mouse_filter != MOUSE_FILTER_STOP) {
+		if (data.mouse_filter != INPUT_FILTER_STOP) {
+			p_property.usage |= PROPERTY_USAGE_READ_ONLY;
+		}
+	}
+
+	if (p_property.name == "touch_force_pass_drag_events") {
+		// Disable force pass if the control is not stopping the event.
+		if (data.touch_filter != INPUT_FILTER_STOP) {
 			p_property.usage |= PROPERTY_USAGE_READ_ONLY;
 		}
 	}
@@ -1889,7 +1896,9 @@ bool Control::has_point(const Point2 &p_point) const {
 	return Rect2(Point2(), get_size()).has_point(p_point);
 }
 
-void Control::set_mouse_filter(MouseFilter p_filter) {
+#pragma region Mouse Functions
+
+void Control::set_mouse_filter(InputFilter p_filter) {
 	ERR_MAIN_THREAD_GUARD;
 	ERR_FAIL_INDEX(p_filter, 3);
 
@@ -1906,20 +1915,20 @@ void Control::set_mouse_filter(MouseFilter p_filter) {
 	}
 }
 
-Control::MouseFilter Control::get_mouse_filter() const {
-	ERR_READ_THREAD_GUARD_V(MOUSE_FILTER_IGNORE);
+Control::InputFilter Control::get_mouse_filter() const {
+	ERR_READ_THREAD_GUARD_V(INPUT_FILTER_IGNORE);
 	return data.mouse_filter;
 }
 
-Control::MouseFilter Control::get_mouse_filter_with_override() const {
-	ERR_READ_THREAD_GUARD_V(MOUSE_FILTER_IGNORE);
+Control::InputFilter Control::get_mouse_filter_with_override() const {
+	ERR_READ_THREAD_GUARD_V(INPUT_FILTER_IGNORE);
 	if (!_is_mouse_filter_enabled()) {
-		return MOUSE_FILTER_IGNORE;
+		return INPUT_FILTER_IGNORE;
 	}
 	return data.mouse_filter;
 }
 
-void Control::set_mouse_behavior_recursive(MouseBehaviorRecursive p_mouse_behavior_recursive) {
+void Control::set_mouse_behavior_recursive(InputBehaviorRecursive p_mouse_behavior_recursive) {
 	ERR_MAIN_THREAD_GUARD;
 	ERR_FAIL_INDEX(p_mouse_behavior_recursive, 3);
 	if (data.mouse_behavior_recursive == p_mouse_behavior_recursive) {
@@ -1929,31 +1938,31 @@ void Control::set_mouse_behavior_recursive(MouseBehaviorRecursive p_mouse_behavi
 	_update_mouse_behavior_recursive();
 }
 
-Control::MouseBehaviorRecursive Control::get_mouse_behavior_recursive() const {
-	ERR_READ_THREAD_GUARD_V(MOUSE_BEHAVIOR_INHERITED);
+Control::InputBehaviorRecursive Control::get_mouse_behavior_recursive() const {
+	ERR_READ_THREAD_GUARD_V(INPUT_BEHAVIOR_INHERITED);
 	return data.mouse_behavior_recursive;
 }
 
 bool Control::_is_mouse_filter_enabled() const {
 	ERR_READ_THREAD_GUARD_V(false);
-	if (data.mouse_behavior_recursive == MOUSE_BEHAVIOR_INHERITED) {
+	if (data.mouse_behavior_recursive == INPUT_BEHAVIOR_INHERITED) {
 		if (data.parent_control) {
 			return data.parent_mouse_behavior_recursive_enabled;
 		}
 		return true;
 	}
-	return data.mouse_behavior_recursive == MOUSE_BEHAVIOR_ENABLED;
+	return data.mouse_behavior_recursive == INPUT_BEHAVIOR_ENABLED;
 }
 
 void Control::_update_mouse_behavior_recursive() {
-	if (data.mouse_behavior_recursive == MOUSE_BEHAVIOR_INHERITED) {
+	if (data.mouse_behavior_recursive == INPUT_BEHAVIOR_INHERITED) {
 		if (data.parent_control) {
 			_propagate_mouse_behavior_recursive_recursively(data.parent_control->_is_mouse_filter_enabled(), false);
 		} else {
 			_propagate_mouse_behavior_recursive_recursively(true, false);
 		}
 	} else {
-		_propagate_mouse_behavior_recursive_recursively(data.mouse_behavior_recursive == MOUSE_BEHAVIOR_ENABLED, false);
+		_propagate_mouse_behavior_recursive_recursively(data.mouse_behavior_recursive == INPUT_BEHAVIOR_ENABLED, false);
 	}
 	if (get_viewport()) {
 		get_viewport()->_gui_update_mouse_over();
@@ -1961,7 +1970,7 @@ void Control::_update_mouse_behavior_recursive() {
 }
 
 void Control::_propagate_mouse_behavior_recursive_recursively(bool p_enabled, bool p_skip_non_inherited) {
-	if (p_skip_non_inherited && data.mouse_behavior_recursive != MOUSE_BEHAVIOR_INHERITED) {
+	if (p_skip_non_inherited && data.mouse_behavior_recursive != INPUT_BEHAVIOR_INHERITED) {
 		return;
 	}
 
@@ -1989,6 +1998,109 @@ void Control::warp_mouse(const Point2 &p_position) {
 	ERR_FAIL_COND(!is_inside_tree());
 	get_viewport()->warp_mouse(get_global_transform_with_canvas().xform(p_position));
 }
+
+#pragma endregion
+
+#pragma region Touch Functions
+
+void Control::set_touch_filter(InputFilter p_filter) {
+	ERR_MAIN_THREAD_GUARD;
+	ERR_FAIL_INDEX(p_filter, 3);
+
+	if (data.touch_filter == p_filter) {
+		return;
+	}
+
+	data.touch_filter = p_filter;
+	notify_property_list_changed();
+	update_configuration_warnings();
+
+	// Todo
+	if (get_viewport()) {
+		get_viewport()->_gui_update_mouse_over();
+	}
+}
+
+Control::InputFilter Control::get_touch_filter() const {
+	ERR_READ_THREAD_GUARD_V(INPUT_FILTER_IGNORE);
+	return data.touch_filter;
+}
+
+Control::InputFilter Control::get_touch_filter_with_override() const {
+	ERR_READ_THREAD_GUARD_V(INPUT_FILTER_IGNORE);
+	if (!_is_touch_filter_enabled()) {
+		return INPUT_FILTER_IGNORE;
+	}
+	return data.touch_filter;
+}
+
+void Control::set_touch_behavior_recursive(InputBehaviorRecursive p_touch_behavior_recursive) {
+	ERR_MAIN_THREAD_GUARD;
+	ERR_FAIL_INDEX(p_touch_behavior_recursive, 3);
+	if (data.touch_behavior_recursive == p_touch_behavior_recursive) {
+		return;
+	}
+	data.touch_behavior_recursive = p_touch_behavior_recursive;
+	_update_touch_behavior_recursive();
+}
+
+Control::InputBehaviorRecursive Control::get_touch_behavior_recursive() const {
+	ERR_READ_THREAD_GUARD_V(INPUT_BEHAVIOR_INHERITED);
+	return data.touch_behavior_recursive;
+}
+
+bool Control::_is_touch_filter_enabled() const {
+	ERR_READ_THREAD_GUARD_V(false);
+	if (data.touch_behavior_recursive == INPUT_BEHAVIOR_INHERITED) {
+		if (data.parent_control) {
+			return data.parent_touch_behavior_recursive_enabled;
+		}
+		return true;
+	}
+	return data.touch_behavior_recursive == INPUT_BEHAVIOR_ENABLED;
+}
+
+void Control::_update_touch_behavior_recursive() {
+	if (data.touch_behavior_recursive == INPUT_BEHAVIOR_INHERITED) {
+		if (data.parent_control) {
+			_propagate_touch_behavior_recursive_recursively(data.parent_control->_is_touch_filter_enabled(), false);
+		} else {
+			_propagate_touch_behavior_recursive_recursively(true, false);
+		}
+	} else {
+		_propagate_touch_behavior_recursive_recursively(data.touch_behavior_recursive == INPUT_BEHAVIOR_ENABLED, false);
+	}
+	// Todo
+	if (get_viewport()) {
+		get_viewport()->_gui_update_mouse_over();
+	}
+}
+
+void Control::_propagate_touch_behavior_recursive_recursively(bool p_enabled, bool p_skip_non_inherited) {
+	if (p_skip_non_inherited && data.touch_behavior_recursive != INPUT_BEHAVIOR_INHERITED) {
+		return;
+	}
+
+	data.parent_touch_behavior_recursive_enabled = p_enabled;
+	for (int i = 0; i < get_child_count(); i++) {
+		Control *control = Object::cast_to<Control>(get_child(i));
+		if (control) {
+			control->_propagate_touch_behavior_recursive_recursively(p_enabled, true);
+		}
+	}
+}
+
+void Control::set_force_pass_drag_events(bool p_force_pass_drag_events) {
+	ERR_MAIN_THREAD_GUARD;
+	data.force_pass_drag_events = p_force_pass_drag_events;
+}
+
+bool Control::is_force_pass_drag_events() const {
+	ERR_READ_THREAD_GUARD_V(false);
+	return data.force_pass_drag_events;
+}
+
+#pragma endregion
 
 void Control::set_shortcut_context(const Node *p_node) {
 	ERR_MAIN_THREAD_GUARD;
@@ -3614,7 +3726,7 @@ void Control::_notification(int p_notification) {
 			DisplayServer::get_singleton()->accessibility_update_set_bounds(ae, Rect2(Vector2(), data.size_cache));
 			DisplayServer::get_singleton()->accessibility_update_set_tooltip(ae, data.tooltip);
 			DisplayServer::get_singleton()->accessibility_update_set_flag(ae, DisplayServer::AccessibilityFlags::FLAG_CLIPS_CHILDREN, data.clip_contents);
-			DisplayServer::get_singleton()->accessibility_update_set_flag(ae, DisplayServer::AccessibilityFlags::FLAG_TOUCH_PASSTHROUGH, data.mouse_filter == MOUSE_FILTER_PASS);
+			DisplayServer::get_singleton()->accessibility_update_set_flag(ae, DisplayServer::AccessibilityFlags::FLAG_TOUCH_PASSTHROUGH, data.mouse_filter == INPUT_FILTER_PASS || data.touch_filter == INPUT_FILTER_PASS);
 
 			DisplayServer::get_singleton()->accessibility_update_add_action(ae, DisplayServer::AccessibilityAction::ACTION_FOCUS, callable_mp(this, &Control::_accessibility_action_foucs));
 			DisplayServer::get_singleton()->accessibility_update_add_action(ae, DisplayServer::AccessibilityAction::ACTION_BLUR, callable_mp(this, &Control::_accessibility_action_blur));
@@ -4120,9 +4232,9 @@ void Control::_bind_methods() {
 	BIND_ENUM_CONSTANT(FOCUS_BEHAVIOR_DISABLED);
 	BIND_ENUM_CONSTANT(FOCUS_BEHAVIOR_ENABLED);
 
-	BIND_ENUM_CONSTANT(MOUSE_BEHAVIOR_INHERITED);
-	BIND_ENUM_CONSTANT(MOUSE_BEHAVIOR_DISABLED);
-	BIND_ENUM_CONSTANT(MOUSE_BEHAVIOR_ENABLED);
+	BIND_ENUM_CONSTANT(INPUT_BEHAVIOR_INHERITED);
+	BIND_ENUM_CONSTANT(INPUT_BEHAVIOR_DISABLED);
+	BIND_ENUM_CONSTANT(INPUT_BEHAVIOR_ENABLED);
 
 	BIND_CONSTANT(NOTIFICATION_RESIZED);
 	BIND_CONSTANT(NOTIFICATION_MOUSE_ENTER);
@@ -4183,9 +4295,9 @@ void Control::_bind_methods() {
 	BIND_BITFIELD_FLAG(SIZE_SHRINK_CENTER);
 	BIND_BITFIELD_FLAG(SIZE_SHRINK_END);
 
-	BIND_ENUM_CONSTANT(MOUSE_FILTER_STOP);
-	BIND_ENUM_CONSTANT(MOUSE_FILTER_PASS);
-	BIND_ENUM_CONSTANT(MOUSE_FILTER_IGNORE);
+	BIND_ENUM_CONSTANT(INPUT_FILTER_STOP);
+	BIND_ENUM_CONSTANT(INPUT_FILTER_PASS);
+	BIND_ENUM_CONSTANT(INPUT_FILTER_IGNORE);
 
 	BIND_ENUM_CONSTANT(GROW_DIRECTION_BEGIN);
 	BIND_ENUM_CONSTANT(GROW_DIRECTION_END);

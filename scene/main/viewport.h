@@ -374,6 +374,7 @@ private:
 		BitField<MouseButtonMask> mouse_focus_mask = MouseButtonMask::NONE;
 		Control *key_focus = nullptr;
 		Control *mouse_over = nullptr;
+		Control *touch_over = nullptr;
 		LocalVector<Control *> mouse_over_hierarchy;
 		bool sending_mouse_enter_exit_notifications = false;
 		Window *subwindow_over = nullptr; // mouse_over and subwindow_over are mutually exclusive. At all times at least one of them is nullptr.
