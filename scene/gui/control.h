@@ -347,6 +347,7 @@ private:
 	void _update_layout_mode();
 	LayoutMode _get_layout_mode() const;
 	LayoutMode _get_default_layout_mode() const;
+	LayoutPreset _get_default_anchors_preset_mode() const;
 	void _set_anchors_layout_preset(int p_preset);
 	int _get_anchors_layout_preset() const;
 

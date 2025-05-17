@@ -38,7 +38,6 @@
 #include "core/os/os.h"
 #include "core/string/string_builder.h"
 #include "core/string/translation_server.h"
-#include "core/variant/variant_utility.h"
 #include "scene/gui/scroll_container.h"
 #include "scene/main/canvas_layer.h"
 #include "scene/main/window.h"
@@ -655,7 +654,7 @@ bool Control::_property_get_revert(const StringName &p_name, Variant &r_property
 		r_property = _get_default_layout_mode();
 		return true;
 	} else if (p_name == "anchors_preset") {
-		r_property = LayoutPreset::PRESET_TOP_LEFT;
+		r_property = _get_default_anchors_preset_mode();
 		return true;
 	}
 
@@ -986,6 +985,10 @@ Control::LayoutMode Control::_get_default_layout_mode() const {
 
 	// Otherwise fallback to the position mode.
 	return LayoutMode::LAYOUT_MODE_POSITION;
+}
+
+Control::LayoutPreset Control::_get_default_anchors_preset_mode() const {
+	return LayoutPreset::PRESET_TOP_LEFT;
 }
 
 void Control::_set_anchors_layout_preset(int p_preset) {
@@ -1918,28 +1921,32 @@ bool Control::has_point(const Point2 &p_point) const {
 void Control::set_visibility_behavior(BitField<Control::VisibilityBehavior> p_behavior) {
 	ERR_MAIN_THREAD_GUARD;
 
-	if ((int)data.visibility_behavior == (int)p_behavior) {
+	if (data.visibility_behavior == p_behavior) {
 		return;
 	}
 	// data.pre_visibility_behavior = data.visibility_behavior;
 
-	// if (data.visibility_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH) && p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS)) {
-	// 	if (p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH)) {
-	// 		p_behavior.clear_flag(VISIBILITY_BEHAVIOR_ON_TOUCH);
-	// 	}
-	// }
-	// if (data.visibility_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS) && p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH)) {
-	// 	if (p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS)) {
-	// 		p_behavior.clear_flag(VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS);
-	// 	}
-	// }
-	uint64_t raw_flags = (uint64_t)p_behavior; // or just (int)flags
+	if (data.visibility_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_MOUSE) && p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_MOUSE_INPUTS)) {
+		if (p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_MOUSE)) {
+			p_behavior.clear_flag(VISIBILITY_BEHAVIOR_ON_MOUSE);
+		}
+	} else if (data.visibility_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_MOUSE_INPUTS) && p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_MOUSE)) {
+		if (p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_MOUSE_INPUTS)) {
+			p_behavior.clear_flag(VISIBILITY_BEHAVIOR_ON_MOUSE_INPUTS);
+		}
+	}
 
-	print_line("Flags: " + itos(raw_flags)); // OR, to go through VariantUtilityFunctions::print:
-
+	if (data.visibility_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH) && p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS)) {
+		if (p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH)) {
+			p_behavior.clear_flag(VISIBILITY_BEHAVIOR_ON_TOUCH);
+		}
+	} else if (data.visibility_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS) && p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH)) {
+		if (p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS)) {
+			p_behavior.clear_flag(VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS);
+		}
+	}
 	data.visibility_behavior = p_behavior;
-
-	notify_property_list_changed();
+	// notify_property_list_changed();
 	update_configuration_warnings();
 }
 
