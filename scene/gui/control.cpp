@@ -654,7 +654,7 @@ bool Control::_property_get_revert(const StringName &p_name, Variant &r_property
 		r_property = _get_default_layout_mode();
 		return true;
 	} else if (p_name == "anchors_preset") {
-		r_property = _get_default_anchors_preset_mode();
+		r_property = _get_default_anchors_preset();
 		return true;
 	}
 
@@ -987,7 +987,7 @@ Control::LayoutMode Control::_get_default_layout_mode() const {
 	return LayoutMode::LAYOUT_MODE_POSITION;
 }
 
-Control::LayoutPreset Control::_get_default_anchors_preset_mode() const {
+Control::LayoutPreset Control::_get_default_anchors_preset() const {
 	return LayoutPreset::PRESET_TOP_LEFT;
 }
 

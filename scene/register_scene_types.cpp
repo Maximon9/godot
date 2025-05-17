@@ -434,7 +434,7 @@ void register_scene_types() {
 	/* REGISTER GUI */
 
 	GDREGISTER_CLASS(ButtonGroup);
-	GDREGISTER_VIRTUAL_CLASS(BaseButton);
+	GDREGISTER_CLASS(BaseButton);
 
 	OS::get_singleton()->yield(); // may take time to init
 

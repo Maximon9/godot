@@ -77,6 +77,8 @@ private:
 	bool in_shortcut_feedback = false;
 	void _shortcut_feedback_timeout();
 
+	Control::LayoutPreset _get_default_anchors_preset() const override;
+
 protected:
 	virtual void pressed();
 	virtual void toggled(bool p_pressed);
