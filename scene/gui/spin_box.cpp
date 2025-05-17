@@ -700,7 +700,7 @@ SpinBox::SpinBox() {
 
 	line_edit->set_theme_type_variation("SpinBoxInnerLineEdit");
 	line_edit->set_anchors_and_offsets_preset(Control::PRESET_FULL_RECT);
-	line_edit->set_mouse_filter(MOUSE_FILTER_PASS);
+	line_edit->set_mouse_filter(INPUT_FILTER_PASS);
 	line_edit->set_horizontal_alignment(HORIZONTAL_ALIGNMENT_LEFT);
 
 	line_edit->connect(SceneStringName(text_submitted), callable_mp(this, &SpinBox::_text_submitted), CONNECT_DEFERRED);

@@ -304,6 +304,8 @@ void SubViewportContainer::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("set_mouse_target", "amount"), &SubViewportContainer::set_mouse_target);
 	ClassDB::bind_method(D_METHOD("is_mouse_target_enabled"), &SubViewportContainer::is_mouse_target_enabled);
+
+	ClassDB::bind_method(D_METHOD("set_touch_target", "amount"), &SubViewportContainer::set_touch_target);
 	ClassDB::bind_method(D_METHOD("is_touch_target_enabled"), &SubViewportContainer::is_touch_target_enabled);
 
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "stretch"), "set_stretch", "is_stretch_enabled");

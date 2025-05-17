@@ -6681,7 +6681,7 @@ Tree::Tree() {
 
 	set_notify_transform(true);
 
-	set_mouse_filter(MOUSE_FILTER_STOP);
+	set_mouse_filter(INPUT_FILTER_STOP);
 
 	set_clip_contents(true);
 }

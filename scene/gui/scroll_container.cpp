@@ -818,7 +818,7 @@ ScrollContainer::ScrollContainer() {
 	// CanvasItems.
 	focus_panel = memnew(PanelContainer);
 	focus_panel->set_name("_focus");
-	focus_panel->set_mouse_filter(MOUSE_FILTER_IGNORE);
+	focus_panel->set_mouse_filter(INPUT_FILTER_IGNORE);
 	focus_panel->set_focus_mode(FOCUS_NONE);
 	focus_panel->set_visible(draw_focus_border);
 	add_child(focus_panel, false, INTERNAL_MODE_BACK);

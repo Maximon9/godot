@@ -291,7 +291,7 @@ void SplitContainer::_resort() {
 		}
 	}
 
-	dragging_area_control->set_mouse_filter(dragging_enabled ? MOUSE_FILTER_STOP : MOUSE_FILTER_IGNORE);
+	dragging_area_control->set_mouse_filter(dragging_enabled ? INPUT_FILTER_STOP : INPUT_FILTER_IGNORE);
 	const int dragger_ctrl_size = MAX(sep, theme_cache.minimum_grab_thickness);
 	float split_bar_offset = (dragger_ctrl_size - sep) * 0.5;
 	if (vertical) {

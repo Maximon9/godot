@@ -258,7 +258,7 @@ bool TextureRect::is_flipped_v() const {
 }
 
 TextureRect::TextureRect() {
-	set_mouse_filter(MOUSE_FILTER_PASS);
+	set_mouse_filter(INPUT_FILTER_PASS);
 }
 
 TextureRect::~TextureRect() {

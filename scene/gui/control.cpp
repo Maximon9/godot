@@ -4268,13 +4268,13 @@ void Control::_bind_methods() {
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "visibility_behavior", PROPERTY_HINT_FLAGS, "On Mouse,On Touch,On Mouse Inputs,On Touch Inputs"), "set_visibility_behavior", "get_visibility_behavior");
 
-	ADD_GROUP("Mouse", "mouse_");
+	ADD_SUBGROUP("Mouse", "mouse_");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "mouse_filter", PROPERTY_HINT_ENUM, "Stop,Pass (Propagate Up),Ignore"), "set_mouse_filter", "get_mouse_filter");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "mouse_behavior_recursive", PROPERTY_HINT_ENUM, "Inherited,Disabled,Enabled"), "set_mouse_behavior_recursive", "get_mouse_behavior_recursive");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "mouse_force_pass_scroll_events"), "set_force_pass_scroll_events", "is_force_pass_scroll_events");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "mouse_default_cursor_shape", PROPERTY_HINT_ENUM, "Arrow,I-Beam,Pointing Hand,Cross,Wait,Busy,Drag,Can Drop,Forbidden,Vertical Resize,Horizontal Resize,Secondary Diagonal Resize,Main Diagonal Resize,Move,Vertical Split,Horizontal Split,Help"), "set_default_cursor_shape", "get_default_cursor_shape");
 
-	ADD_GROUP("Touch", "touch_");
+	ADD_SUBGROUP("Touch", "touch_");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "touch_filter", PROPERTY_HINT_ENUM, "Stop,Pass (Propagate Up),Ignore"), "set_touch_filter", "get_touch_filter");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "touch_behavior_recursive", PROPERTY_HINT_ENUM, "Inherited,Disabled,Enabled"), "set_touch_behavior_recursive", "get_touch_behavior_recursive");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "touch_force_pass_drag_events"), "set_force_pass_drag_events", "is_force_pass_drag_events");

@@ -101,5 +101,5 @@ void PanelContainer::_bind_methods() {
 
 PanelContainer::PanelContainer() {
 	// Has visible stylebox, so stop by default.
-	set_mouse_filter(MOUSE_FILTER_STOP);
+	set_mouse_filter(INPUT_FILTER_STOP);
 }
