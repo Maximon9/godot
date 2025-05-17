@@ -28,6 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
+#pragma region Main
+
 #include "control.h"
 
 #include "container.h"
@@ -1904,13 +1906,32 @@ bool Control::has_point(const Point2 &p_point) const {
 
 #pragma region Visibility Behavior
 
+// bool Control::valid_visibility_behavior(BitField<Control::VisibilityBehavior> p_behavior) {
+// 	return p_behavior == p_behavior & data.visibility_behavior;
+// }
+
+// bool Control::_valid_visibility_behavior(BitField<Control::VisibilityBehavior> p_behaviors, BitField<Control::VisibilityBehavior> p_behavior) {
+// 	return p_behavior == p_behavior & p_behaviors;
+// }
+
 void Control::set_visibility_behavior(BitField<Control::VisibilityBehavior> p_behavior) {
 	ERR_MAIN_THREAD_GUARD;
 
 	if (data.input_mode == p_behavior) {
 		return;
 	}
+	// data.pre_visibility_behavior = data.visibility_behavior;
 
+	if (data.visibility_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH) && p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS)) {
+		if (p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH)) {
+			p_behavior.clear_flag(VISIBILITY_BEHAVIOR_ON_TOUCH);
+		}
+	}
+	if (data.visibility_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS) && p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH)) {
+		if (p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS)) {
+			p_behavior.clear_flag(VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS);
+		}
+	}
 	data.visibility_behavior = p_behavior;
 	// notify_property_list_changed();
 	update_configuration_warnings();
@@ -4275,7 +4296,7 @@ void Control::_bind_methods() {
 	ADD_GROUP("Input", "");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "shortcut_context", PROPERTY_HINT_NODE_TYPE, "Node"), "set_shortcut_context", "get_shortcut_context");
 
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "input_mode", PROPERTY_HINT_ENUM, "Both,Mouse,Touch"), "set_input_mode", "get_input_mode");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "input_mode", PROPERTY_HINT_ENUM, "Touch,Mouse,Both"), "set_input_mode", "get_input_mode");
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "visibility_behavior", PROPERTY_HINT_FLAGS, "On Mouse,On Touch,On Mouse Inputs,On Touch Inputs"), "set_visibility_behavior", "get_visibility_behavior");
 
@@ -4454,3 +4475,5 @@ Control::~Control() {
 	data.theme_color_override.clear();
 	data.theme_constant_override.clear();
 }
+
+#pragma endregion

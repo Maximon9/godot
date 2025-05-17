@@ -257,6 +257,7 @@ private:
 
 		// Input events and rendering.
 
+		// BitField<VisibilityBehavior> pre_visibility_behavior = VISIBILITY_BEHAVIOR_ON_MOUSE | VISIBILITY_BEHAVIOR_ON_TOUCH;
 		BitField<VisibilityBehavior> visibility_behavior = VISIBILITY_BEHAVIOR_ON_MOUSE | VISIBILITY_BEHAVIOR_ON_TOUCH;
 
 		InputMode input_mode = INPUT_MODE_BOTH;
@@ -587,6 +588,9 @@ public:
 	void accept_event();
 
 	virtual bool has_point(const Point2 &p_point) const;
+
+	// bool valid_visibility_behavior(BitField<VisibilityBehavior> p_behavior);
+	// bool _valid_visibility_behavior(BitField<Control::VisibilityBehavior> p_behaviors, BitField<VisibilityBehavior> p_behavior);
 
 	void set_visibility_behavior(BitField<VisibilityBehavior> p_behavior);
 	BitField<VisibilityBehavior> get_visibility_behavior() const;
