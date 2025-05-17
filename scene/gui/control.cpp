@@ -505,18 +505,29 @@ void Control::_validate_property(PropertyInfo &p_property) const {
 		p_property.hint_string = hint_string;
 	}
 
-	if (p_property.name == "mouse_force_pass_scroll_events") {
-		// Disable force pass if the control is not stopping the event.
-		if (data.mouse_filter != INPUT_FILTER_STOP) {
-			p_property.usage |= PROPERTY_USAGE_READ_ONLY;
+	bool mouse_is_allowed = data.input_mode == INPUT_MODE_BOTH || data.input_mode == INPUT_MODE_MOUSE;
+	bool touch_is_allowed = data.input_mode == INPUT_MODE_BOTH || data.input_mode == INPUT_MODE_TOUCH;
+
+	if (mouse_is_allowed) {
+		if (p_property.name == "mouse_force_pass_scroll_events") {
+			// Disable force pass if the control is not stopping the event.
+			if (data.mouse_filter != INPUT_FILTER_STOP) {
+				p_property.usage |= PROPERTY_USAGE_READ_ONLY;
+			}
 		}
+	} else if (p_property.name == "Mouse" || p_property.name.begins_with("mouse_")) {
+		p_property.usage &= ~PROPERTY_USAGE_EDITOR;
 	}
 
-	if (p_property.name == "touch_force_pass_drag_events") {
-		// Disable force pass if the control is not stopping the event.
-		if (data.touch_filter != INPUT_FILTER_STOP) {
-			p_property.usage |= PROPERTY_USAGE_READ_ONLY;
+	if (touch_is_allowed) {
+		if (p_property.name == "touch_force_pass_drag_events") {
+			// Disable force pass if the control is not stopping the event.
+			if (data.touch_filter != INPUT_FILTER_STOP) {
+				p_property.usage |= PROPERTY_USAGE_READ_ONLY;
+			}
 		}
+	} else if (p_property.name == "Touch" || p_property.name.begins_with("touch_")) {
+		p_property.usage &= ~PROPERTY_USAGE_EDITOR;
 	}
 
 	if (p_property.name == "scale") {
