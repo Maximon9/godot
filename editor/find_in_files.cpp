@@ -414,7 +414,7 @@ FindInFilesDialog::FindInFilesDialog() {
 	Label *includes_label = memnew(Label);
 	includes_label->set_text(TTR("Includes:"));
 	includes_label->set_tooltip_text(TTR("Include the files with the following expressions. Use \",\" to separate."));
-	includes_label->set_mouse_filter(Control::MOUSE_FILTER_PASS);
+	includes_label->set_mouse_filter(Control::INPUT_FILTER_PASS);
 	gc->add_child(includes_label);
 
 	_includes_line_edit = memnew(LineEdit);
@@ -427,7 +427,7 @@ FindInFilesDialog::FindInFilesDialog() {
 	Label *excludes_label = memnew(Label);
 	excludes_label->set_text(TTR("Excludes:"));
 	excludes_label->set_tooltip_text(TTR("Exclude the files with the following expressions. Use \",\" to separate."));
-	excludes_label->set_mouse_filter(Control::MOUSE_FILTER_PASS);
+	excludes_label->set_mouse_filter(Control::INPUT_FILTER_PASS);
 	gc->add_child(excludes_label);
 
 	_excludes_line_edit = memnew(LineEdit);
@@ -440,7 +440,7 @@ FindInFilesDialog::FindInFilesDialog() {
 	Label *filter_label = memnew(Label);
 	filter_label->set_text(TTR("Filters:"));
 	filter_label->set_tooltip_text(TTR("Include the files with the following extensions. Add or remove them in ProjectSettings."));
-	filter_label->set_mouse_filter(Control::MOUSE_FILTER_PASS);
+	filter_label->set_mouse_filter(Control::INPUT_FILTER_PASS);
 	gc->add_child(filter_label);
 
 	_filters_container = memnew(HBoxContainer);

@@ -380,7 +380,7 @@ private:
 		Control *drag_mouse_over = nullptr;
 
 		bool touch_in_viewport = false;
-		HashMap<int, ObjectID> touch_focus;
+		HashMap<int, Control *> touch_focus;
 		Control *touch_click_grabber = nullptr;
 		Control *touch_over = nullptr;
 		LocalVector<Control *> touch_over_hierarchy;

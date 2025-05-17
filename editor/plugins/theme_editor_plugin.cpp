@@ -2043,7 +2043,7 @@ ThemeItemEditorDialog::ThemeItemEditorDialog(ThemeTypeEditor *p_theme_type_edito
 
 	edit_items_message = memnew(Label);
 	edit_items_message->set_anchors_and_offsets_preset(Control::PRESET_FULL_RECT);
-	edit_items_message->set_mouse_filter(Control::MOUSE_FILTER_STOP);
+	edit_items_message->set_mouse_filter(Control::INPUT_FILTER_STOP);
 	edit_items_message->set_horizontal_alignment(HORIZONTAL_ALIGNMENT_CENTER);
 	edit_items_message->set_vertical_alignment(VERTICAL_ALIGNMENT_CENTER);
 	edit_items_message->set_autowrap_mode(TextServer::AUTOWRAP_WORD);
@@ -2468,7 +2468,7 @@ HBoxContainer *ThemeTypeEditor::_create_property_control(Theme::DataType p_data_
 	item_name->set_text(p_item_name);
 	// `|` separators used in `EditorHelpBit`.
 	item_name->set_tooltip_text("theme_item|" + edited_type + "|" + p_item_name);
-	item_name->set_mouse_filter(Control::MOUSE_FILTER_STOP);
+	item_name->set_mouse_filter(Control::INPUT_FILTER_STOP);
 	item_name_container->add_child(item_name);
 
 	if (p_editable) {

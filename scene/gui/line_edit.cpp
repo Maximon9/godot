@@ -3315,7 +3315,7 @@ LineEdit::LineEdit(const String &p_placeholder) {
 	deselect();
 	set_focus_mode(FOCUS_ALL);
 	set_default_cursor_shape(CURSOR_IBEAM);
-	set_mouse_filter(MOUSE_FILTER_STOP);
+	set_mouse_filter(INPUT_FILTER_STOP);
 	set_process_unhandled_key_input(true);
 
 	set_caret_blink_enabled(false);

@@ -2175,7 +2175,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 		if (touch_event->is_pressed()) {
 			Control *over = gui_find_control(pos);
 			if (over) {
-				gui.touch_focus[touch_index] = over->get_instance_id();
+				gui.touch_focus[touch_index] = over;
 				if (over->can_process()) {
 					touch_event = touch_event->xformed_by(Transform2D()); // Make a copy.
 					pos = over->get_global_transform_with_canvas().affine_inverse().xform(pos);
@@ -2185,8 +2185,8 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 				return;
 			}
 		} else {
-			ObjectID control_id = gui.touch_focus[touch_index];
-			Control *over = control_id.is_valid() ? ObjectDB::get_instance<Control>(control_id) : nullptr;
+			Control *over = gui.touch_focus[touch_index];
+			// Control *over = control_id.is_valid() ? ObjectDB::get_instance<Control>(control_id) : nullptr;
 			if (over && over->can_process()) {
 				touch_event = touch_event->xformed_by(Transform2D()); // Make a copy.
 				pos = over->get_global_transform_with_canvas().affine_inverse().xform(pos);
@@ -2220,8 +2220,8 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 	Ref<InputEventScreenDrag> drag_event = p_event;
 	if (drag_event.is_valid()) {
 		const int drag_event_index = drag_event->get_index();
-		ObjectID control_id = gui.touch_focus[drag_event_index];
-		Control *over = control_id.is_valid() ? ObjectDB::get_instance<Control>(control_id) : nullptr;
+		Control *over = gui.touch_focus[drag_event_index];
+		// Control *over = control_id.is_valid() ? ObjectDB::get_instance<Control>(control_id) : nullptr;
 		if (!over) {
 			over = gui_find_control(drag_event->get_position());
 		}
@@ -2812,16 +2812,16 @@ void Viewport::_drop_physics_mouseover(bool p_paused_only) {
 }
 
 void Viewport::_drop_touch_focus() {
-	HashMap<int, ObjectID> *touch_focus = &gui.touch_focus;
+	HashMap<int, Control *> *touch_focus = &gui.touch_focus;
 	gui.touch_focus.clear();
 
 	if (!touch_focus->is_empty()) {
 		return;
 	}
 
-	for (HashMap<int, ObjectID>::Iterator it = touch_focus->begin(); it != touch_focus->end(); ++it) {
+	for (HashMap<int, Control *>::Iterator it = touch_focus->begin(); it != touch_focus->end(); ++it) {
 		int touch_index = it->key;
-		Ref<Control> control = it->value;
+		Control *control = it->value;
 		Ref<InputEventScreenTouch> tb;
 		tb.instantiate();
 		tb->set_index(touch_index);

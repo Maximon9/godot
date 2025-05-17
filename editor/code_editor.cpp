@@ -1903,7 +1903,7 @@ CodeTextEditor::CodeTextEditor() {
 	error->set_focus_mode(FOCUS_ACCESSIBILITY);
 	scroll->add_child(error);
 	error->set_v_size_flags(SIZE_EXPAND | SIZE_SHRINK_CENTER);
-	error->set_mouse_filter(MOUSE_FILTER_STOP);
+	error->set_mouse_filter(INPUT_FILTER_STOP);
 	error->connect(SceneStringName(gui_input), callable_mp(this, &CodeTextEditor::_error_pressed));
 
 	// Errors
@@ -1960,7 +1960,7 @@ CodeTextEditor::CodeTextEditor() {
 	line_and_col_txt->set_tooltip_text(TTR("Line and column numbers."));
 	line_and_col_txt->set_accessibility_name(TTRC("Line and Column Numbers"));
 	line_and_col_txt->set_focus_mode(FOCUS_ACCESSIBILITY);
-	line_and_col_txt->set_mouse_filter(MOUSE_FILTER_STOP);
+	line_and_col_txt->set_mouse_filter(INPUT_FILTER_STOP);
 
 	status_bar->add_child(memnew(VSeparator));
 
@@ -1971,7 +1971,7 @@ CodeTextEditor::CodeTextEditor() {
 	indentation_txt->set_tooltip_text(TTR("Indentation"));
 	indentation_txt->set_accessibility_name(TTRC("Indentation"));
 	indentation_txt->set_focus_mode(FOCUS_ACCESSIBILITY);
-	indentation_txt->set_mouse_filter(MOUSE_FILTER_STOP);
+	indentation_txt->set_mouse_filter(INPUT_FILTER_STOP);
 
 	text_editor->connect(SceneStringName(gui_input), callable_mp(this, &CodeTextEditor::_text_editor_gui_input));
 	text_editor->connect("caret_changed", callable_mp(this, &CodeTextEditor::_line_col_changed));

@@ -656,7 +656,7 @@ GradientEditor::GradientEditor() {
 	add_child(gradient_editor_rect);
 	reverse_button->connect(SceneStringName(pressed), callable_mp(gradient_editor_rect, &GradientEdit::reverse_gradient));
 
-	set_mouse_filter(MOUSE_FILTER_STOP);
+	set_mouse_filter(INPUT_FILTER_STOP);
 	_set_snap_enabled(snap_button->is_pressed());
 	_set_snap_count(snap_count_edit->get_value());
 }

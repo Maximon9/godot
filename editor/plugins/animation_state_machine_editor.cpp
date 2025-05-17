@@ -1827,7 +1827,7 @@ AnimationNodeStateMachineEditor::AnimationNodeStateMachineEditor() {
 
 	panel = memnew(PanelContainer);
 	panel->set_clip_contents(true);
-	panel->set_mouse_filter(Control::MOUSE_FILTER_PASS);
+	panel->set_mouse_filter(Control::INPUT_FILTER_PASS);
 	add_child(panel);
 	panel->set_v_size_flags(SIZE_EXPAND_FILL);
 
@@ -1836,11 +1836,11 @@ AnimationNodeStateMachineEditor::AnimationNodeStateMachineEditor() {
 	state_machine_draw->connect(SceneStringName(gui_input), callable_mp(this, &AnimationNodeStateMachineEditor::_state_machine_gui_input));
 	state_machine_draw->connect(SceneStringName(draw), callable_mp(this, &AnimationNodeStateMachineEditor::_state_machine_draw));
 	state_machine_draw->set_focus_mode(FOCUS_ALL);
-	state_machine_draw->set_mouse_filter(Control::MOUSE_FILTER_PASS);
+	state_machine_draw->set_mouse_filter(Control::INPUT_FILTER_PASS);
 
 	state_machine_play_pos = memnew(Control);
 	state_machine_draw->add_child(state_machine_play_pos);
-	state_machine_play_pos->set_mouse_filter(MOUSE_FILTER_PASS); //pass all to parent
+	state_machine_play_pos->set_mouse_filter(INPUT_FILTER_PASS); //pass all to parent
 	state_machine_play_pos->set_anchors_and_offsets_preset(PRESET_FULL_RECT);
 	state_machine_play_pos->connect(SceneStringName(draw), callable_mp(this, &AnimationNodeStateMachineEditor::_state_machine_pos_draw_all));
 

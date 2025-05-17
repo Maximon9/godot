@@ -754,7 +754,7 @@ EditorSpinSlider::EditorSpinSlider() {
 	add_child(grabber);
 	grabber->hide();
 	grabber->set_z_index(1);
-	grabber->set_mouse_filter(MOUSE_FILTER_STOP);
+	grabber->set_mouse_filter(INPUT_FILTER_STOP);
 	grabber->connect(SceneStringName(mouse_entered), callable_mp(this, &EditorSpinSlider::_grabber_mouse_entered));
 	grabber->connect(SceneStringName(mouse_exited), callable_mp(this, &EditorSpinSlider::_grabber_mouse_exited));
 	grabber->connect(SceneStringName(gui_input), callable_mp(this, &EditorSpinSlider::_grabber_gui_input));

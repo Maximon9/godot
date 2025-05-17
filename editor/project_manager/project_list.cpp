@@ -333,7 +333,7 @@ ProjectListItemControl::ProjectListItemControl() {
 	favorite_button->set_tooltip_text(TTR("Add to favorites"));
 	favorite_button->set_accessibility_name(TTRC("Add to favorites"));
 	// This makes the project's "hover" style display correctly when hovering the favorite icon.
-	favorite_button->set_mouse_filter(MOUSE_FILTER_PASS);
+	favorite_button->set_mouse_filter(INPUT_FILTER_PASS);
 	favorite_box->add_child(favorite_button);
 	favorite_button->connect(SceneStringName(pressed), callable_mp(this, &ProjectListItemControl::_favorite_button_pressed));
 
@@ -348,7 +348,7 @@ ProjectListItemControl::ProjectListItemControl() {
 
 	Control *ec = memnew(Control);
 	ec->set_custom_minimum_size(Size2(0, 1));
-	ec->set_mouse_filter(MOUSE_FILTER_PASS);
+	ec->set_mouse_filter(INPUT_FILTER_PASS);
 	main_vbox->add_child(ec);
 
 	// Top half, title, tags and unsupported features labels.
@@ -404,13 +404,13 @@ ProjectListItemControl::ProjectListItemControl() {
 		project_version = memnew(Label);
 		project_version->set_focus_mode(FOCUS_ACCESSIBILITY);
 		project_version->set_name("ProjectVersion");
-		project_version->set_mouse_filter(Control::MOUSE_FILTER_PASS);
+		project_version->set_mouse_filter(Control::INPUT_FILTER_PASS);
 		path_hb->add_child(project_version);
 
 		last_edited_info = memnew(Label);
 		last_edited_info->set_focus_mode(FOCUS_ACCESSIBILITY);
 		last_edited_info->set_name("LastEditedInfo");
-		last_edited_info->set_mouse_filter(Control::MOUSE_FILTER_PASS);
+		last_edited_info->set_mouse_filter(Control::INPUT_FILTER_PASS);
 		last_edited_info->set_tooltip_text(TTRC("Last edited timestamp"));
 		last_edited_info->set_modulate(Color(1, 1, 1, 0.5));
 		path_hb->add_child(last_edited_info);

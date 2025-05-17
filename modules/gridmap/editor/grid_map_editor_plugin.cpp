@@ -1485,7 +1485,7 @@ GridMapEditor::GridMapEditor() {
 
 	// Wide empty separation control. (like BoxContainer::add_spacer())
 	Control *c = memnew(Control);
-	c->set_mouse_filter(MOUSE_FILTER_PASS);
+	c->set_mouse_filter(INPUT_FILTER_PASS);
 	c->set_h_size_flags(SIZE_EXPAND_FILL);
 	toolbar->add_child(c);
 

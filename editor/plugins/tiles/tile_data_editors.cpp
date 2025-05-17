@@ -994,12 +994,12 @@ GenericTilePolygonEditor::GenericTilePolygonEditor() {
 	Control *root = memnew(Control);
 	root->set_v_size_flags(Control::SIZE_EXPAND_FILL);
 	root->set_custom_minimum_size(Size2(0, 200 * EDSCALE));
-	root->set_mouse_filter(Control::MOUSE_FILTER_IGNORE);
+	root->set_mouse_filter(Control::INPUT_FILTER_IGNORE);
 	add_child(root);
 
 	panel = memnew(Panel);
 	panel->set_anchors_and_offsets_preset(Control::PRESET_FULL_RECT);
-	panel->set_mouse_filter(Control::MOUSE_FILTER_IGNORE);
+	panel->set_mouse_filter(Control::INPUT_FILTER_IGNORE);
 	root->add_child(panel);
 
 	base_control = memnew(Control);

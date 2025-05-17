@@ -1349,7 +1349,7 @@ ProjectManager::ProjectManager() {
 		if (can_expand) {
 			// Add spacer to avoid other controls under window minimize/maximize/close buttons (left side).
 			left_menu_spacer = memnew(Control);
-			left_menu_spacer->set_mouse_filter(Control::MOUSE_FILTER_PASS);
+			left_menu_spacer->set_mouse_filter(Control::INPUT_FILTER_PASS);
 			title_bar->add_child(left_menu_spacer);
 		}
 
@@ -1369,7 +1369,7 @@ ProjectManager::ProjectManager() {
 		if (can_expand) {
 			// Spacer to center main toggles.
 			left_spacer = memnew(Control);
-			left_spacer->set_mouse_filter(Control::MOUSE_FILTER_PASS);
+			left_spacer->set_mouse_filter(Control::INPUT_FILTER_PASS);
 			title_bar->add_child(left_spacer);
 		}
 
@@ -1383,7 +1383,7 @@ ProjectManager::ProjectManager() {
 		if (can_expand) {
 			// Spacer to center main toggles.
 			right_spacer = memnew(Control);
-			right_spacer->set_mouse_filter(Control::MOUSE_FILTER_PASS);
+			right_spacer->set_mouse_filter(Control::INPUT_FILTER_PASS);
 			title_bar->add_child(right_spacer);
 		}
 
@@ -1404,7 +1404,7 @@ ProjectManager::ProjectManager() {
 		if (can_expand) {
 			// Add spacer to avoid other controls under the window minimize/maximize/close buttons (right side).
 			right_menu_spacer = memnew(Control);
-			right_menu_spacer->set_mouse_filter(Control::MOUSE_FILTER_PASS);
+			right_menu_spacer->set_mouse_filter(Control::INPUT_FILTER_PASS);
 			title_bar->add_child(right_menu_spacer);
 		}
 	}

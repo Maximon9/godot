@@ -714,7 +714,7 @@ void GraphEdit::add_child_notify(Node *p_child) {
 
 		graph_element->set_scale(Vector2(zoom, zoom));
 		_graph_element_moved(graph_element);
-		graph_element->set_mouse_filter(MOUSE_FILTER_PASS);
+		graph_element->set_mouse_filter(INPUT_FILTER_PASS);
 	}
 }
 
@@ -1423,7 +1423,7 @@ bool GraphEdit::_check_clickable_control(Control *p_control, const Vector2 &mpos
 	control_rect.size *= zoom;
 	control_rect.position += p_offset;
 
-	if (!control_rect.has_point(mpos) || p_control->get_mouse_filter_with_override() == MOUSE_FILTER_IGNORE) {
+	if (!control_rect.has_point(mpos) || p_control->get_mouse_filter_with_override() == INPUT_FILTER_IGNORE) {
 		// Test children.
 		for (int i = 0; i < p_control->get_child_count(); i++) {
 			Control *child_rect = Object::cast_to<Control>(p_control->get_child(i));
@@ -3146,7 +3146,7 @@ GraphEdit::GraphEdit() {
 
 	top_layer = memnew(Control);
 	add_child(top_layer, false, INTERNAL_MODE_BACK);
-	top_layer->set_mouse_filter(MOUSE_FILTER_IGNORE);
+	top_layer->set_mouse_filter(INPUT_FILTER_IGNORE);
 	top_layer->set_anchors_and_offsets_preset(Control::PRESET_FULL_RECT);
 	top_layer->connect(SceneStringName(draw), callable_mp(this, &GraphEdit::_top_layer_draw));
 	top_layer->connect(SceneStringName(focus_exited), callable_mp(panner.ptr(), &ViewPanner::release_pan_key));
@@ -3156,14 +3156,14 @@ GraphEdit::GraphEdit() {
 	connections_layer->connect(SceneStringName(draw), callable_mp(this, &GraphEdit::_update_connections));
 	connections_layer->set_name("_connection_layer");
 	connections_layer->set_disable_visibility_clip(true); // Necessary, so it can draw freely and be offset.
-	connections_layer->set_mouse_filter(MOUSE_FILTER_IGNORE);
+	connections_layer->set_mouse_filter(INPUT_FILTER_IGNORE);
 
 	top_connection_layer = memnew(GraphEditFilter(this));
 	add_child(top_connection_layer, false, INTERNAL_MODE_BACK);
 
 	connections_shader = default_connections_shader;
 
-	top_connection_layer->set_mouse_filter(MOUSE_FILTER_PASS);
+	top_connection_layer->set_mouse_filter(INPUT_FILTER_PASS);
 	top_connection_layer->set_anchors_and_offsets_preset(Control::PRESET_FULL_RECT);
 	top_connection_layer->connect(SceneStringName(gui_input), callable_mp(this, &GraphEdit::_top_connection_layer_input));
 
@@ -3302,7 +3302,7 @@ GraphEdit::GraphEdit() {
 	top_layer->add_child(minimap);
 	minimap->set_name("_minimap");
 	minimap->set_modulate(Color(1, 1, 1, minimap_opacity));
-	minimap->set_mouse_filter(MOUSE_FILTER_PASS);
+	minimap->set_mouse_filter(INPUT_FILTER_PASS);
 	minimap->set_custom_minimum_size(Vector2(50, 50));
 	minimap->set_size(minimap_size);
 	minimap->set_anchors_preset(Control::PRESET_BOTTOM_RIGHT);

@@ -1398,7 +1398,7 @@ EditorAudioStreamPicker::EditorAudioStreamPicker() :
 	stream_preview_rect->set_offset(SIDE_TOP, 1);
 	stream_preview_rect->set_offset(SIDE_BOTTOM, -1);
 	stream_preview_rect->set_offset(SIDE_RIGHT, -1);
-	stream_preview_rect->set_mouse_filter(MOUSE_FILTER_IGNORE);
+	stream_preview_rect->set_mouse_filter(INPUT_FILTER_IGNORE);
 	stream_preview_rect->connect(SceneStringName(draw), callable_mp(this, &EditorAudioStreamPicker::_preview_draw));
 
 	get_assign_button()->add_child(stream_preview_rect);

@@ -2761,7 +2761,7 @@ void EditorInspectorArray::_setup() {
 		// Panel and its hbox.
 		ae.panel = memnew(ArrayPanelContainer);
 		ae.panel->set_focus_mode(FOCUS_ALL);
-		ae.panel->set_mouse_filter(MOUSE_FILTER_PASS);
+		ae.panel->set_mouse_filter(INPUT_FILTER_PASS);
 		SET_DRAG_FORWARDING_GCD(ae.panel, EditorInspectorArray);
 
 		int element_position = begin_array_index + i;
@@ -2779,7 +2779,7 @@ void EditorInspectorArray::_setup() {
 		elements_vbox->add_child(ae.panel);
 
 		ae.margin = memnew(MarginContainer);
-		ae.margin->set_mouse_filter(MOUSE_FILTER_PASS);
+		ae.margin->set_mouse_filter(INPUT_FILTER_PASS);
 		if (is_inside_tree()) {
 			Size2 min_size = get_theme_stylebox(SNAME("Focus"), EditorStringName(EditorStyles))->get_minimum_size();
 			ae.margin->begin_bulk_theme_override();
@@ -3083,7 +3083,7 @@ EditorInspectorArray::EditorInspectorArray(bool p_read_only) {
 
 	control_dropping = memnew(Control);
 	control_dropping->connect(SceneStringName(draw), callable_mp(this, &EditorInspectorArray::_control_dropping_draw));
-	control_dropping->set_mouse_filter(Control::MOUSE_FILTER_IGNORE);
+	control_dropping->set_mouse_filter(Control::INPUT_FILTER_IGNORE);
 	add_child(control_dropping);
 
 	resize_dialog = memnew(AcceptDialog);

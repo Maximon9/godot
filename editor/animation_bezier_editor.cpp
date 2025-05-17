@@ -2308,7 +2308,7 @@ AnimationBezierTrackEdit::AnimationBezierTrackEdit() {
 	panner->set_callbacks(callable_mp(this, &AnimationBezierTrackEdit::_pan_callback), callable_mp(this, &AnimationBezierTrackEdit::_zoom_callback));
 
 	play_position = memnew(Control);
-	play_position->set_mouse_filter(MOUSE_FILTER_PASS);
+	play_position->set_mouse_filter(INPUT_FILTER_PASS);
 	add_child(play_position);
 	play_position->set_anchors_and_offsets_preset(PRESET_FULL_RECT);
 	play_position->connect(SceneStringName(draw), callable_mp(this, &AnimationBezierTrackEdit::_play_position_draw));

@@ -442,14 +442,14 @@ EditorSceneTabs::EditorSceneTabs() {
 	scene_tab_add->connect(SceneStringName(pressed), callable_mp(EditorNode::get_singleton(), &EditorNode::trigger_menu_option).bind(EditorNode::SCENE_NEW_SCENE, false));
 
 	scene_tab_add_ph = memnew(Control);
-	scene_tab_add_ph->set_mouse_filter(Control::MOUSE_FILTER_IGNORE);
+	scene_tab_add_ph->set_mouse_filter(Control::INPUT_FILTER_IGNORE);
 	scene_tab_add_ph->set_custom_minimum_size(scene_tab_add->get_minimum_size());
 	tabbar_container->add_child(scene_tab_add_ph);
 
 	// On-hover tab preview.
 
 	Control *tab_preview_anchor = memnew(Control);
-	tab_preview_anchor->set_mouse_filter(Control::MOUSE_FILTER_IGNORE);
+	tab_preview_anchor->set_mouse_filter(Control::INPUT_FILTER_IGNORE);
 	add_child(tab_preview_anchor);
 
 	tab_preview_panel = memnew(Panel);

@@ -146,7 +146,7 @@ public:
 			base_tiles_root_control->add_child(p_control);
 		}
 		p_control->set_anchors_and_offsets_preset(Control::PRESET_FULL_RECT);
-		p_control->set_mouse_filter(Control::MOUSE_FILTER_PASS);
+		p_control->set_mouse_filter(Control::INPUT_FILTER_PASS);
 	}
 
 	// Right side.
@@ -160,7 +160,7 @@ public:
 			alternative_tiles_root_control->add_child(p_control);
 		}
 		p_control->set_anchors_and_offsets_preset(Control::PRESET_FULL_RECT);
-		p_control->set_mouse_filter(Control::MOUSE_FILTER_PASS);
+		p_control->set_mouse_filter(Control::INPUT_FILTER_PASS);
 	}
 
 	// Redraw everything.

@@ -1266,6 +1266,6 @@ GraphNode::GraphNode() {
 	title_label->set_h_size_flags(SIZE_EXPAND_FILL);
 	titlebar_hbox->add_child(title_label);
 
-	set_mouse_filter(MOUSE_FILTER_STOP);
+	set_mouse_filter(INPUT_FILTER_STOP);
 	set_focus_mode(FOCUS_ACCESSIBILITY);
 }

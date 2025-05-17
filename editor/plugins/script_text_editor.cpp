@@ -2811,7 +2811,7 @@ ScriptTextEditor::ScriptTextEditor() {
 	add_child(inline_color_popup);
 
 	inline_color_picker = memnew(ColorPicker);
-	inline_color_picker->set_mouse_filter(MOUSE_FILTER_STOP);
+	inline_color_picker->set_mouse_filter(INPUT_FILTER_STOP);
 	inline_color_picker->set_deferred_mode(true);
 	inline_color_picker->set_hex_visible(false);
 	inline_color_picker->connect("color_changed", callable_mp(this, &ScriptTextEditor::_picker_color_changed));

@@ -118,10 +118,10 @@ void ControlPositioningWarning::_notification(int p_notification) {
 }
 
 ControlPositioningWarning::ControlPositioningWarning() {
-	set_mouse_filter(MOUSE_FILTER_STOP);
+	set_mouse_filter(INPUT_FILTER_STOP);
 
 	bg_panel = memnew(PanelContainer);
-	bg_panel->set_mouse_filter(MOUSE_FILTER_IGNORE);
+	bg_panel->set_mouse_filter(INPUT_FILTER_IGNORE);
 	add_child(bg_panel);
 
 	grid = memnew(GridContainer);

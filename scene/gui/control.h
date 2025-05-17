@@ -174,11 +174,6 @@ public:
 		TEXT_DIRECTION_INHERITED = TextServer::DIRECTION_INHERITED,
 	};
 
-	enum InputMode {
-		INPUT_MODE_TOUCH,
-		INPUT_MODE_MOUSE,
-		INPUT_MODE_BOTH,
-	};
 	enum VisibilityBehavior {
 		VISIBILITY_BEHAVIOR_ON_MOUSE = 1 << 0, // 0b0001 = 1
 		VISIBILITY_BEHAVIOR_ON_TOUCH = 1 << 1, // 0b0010 = 2
@@ -186,12 +181,18 @@ public:
 		VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS = 1 << 3 // 0b1000 = 8
 	};
 
-	enum GizmoMode {
-		OFF,
-		EDITOR,
-		GAME,
-		BOTH
+	enum InputMode {
+		INPUT_MODE_TOUCH,
+		INPUT_MODE_MOUSE,
+		INPUT_MODE_BOTH,
 	};
+
+	// enum GizmoMode {
+	// 	OFF,
+	// 	EDITOR,
+	// 	GAME,
+	// 	BOTH
+	// };
 
 private:
 	struct CComparator {
@@ -256,7 +257,7 @@ private:
 
 		// Input events and rendering.
 
-		int visibility_behavior = VISIBILITY_BEHAVIOR_ON_MOUSE | VISIBILITY_BEHAVIOR_ON_TOUCH;
+		BitField<VisibilityBehavior> visibility_behavior = VISIBILITY_BEHAVIOR_ON_MOUSE | VISIBILITY_BEHAVIOR_ON_TOUCH;
 
 		InputMode input_mode = INPUT_MODE_BOTH;
 
@@ -587,8 +588,8 @@ public:
 
 	virtual bool has_point(const Point2 &p_point) const;
 
-	void set_visibility_behavior(int p_behavior);
-	int get_visibility_behavior() const;
+	void set_visibility_behavior(BitField<VisibilityBehavior> p_behavior);
+	BitField<VisibilityBehavior> get_visibility_behavior() const;
 
 	void set_input_mode(InputMode p_mode);
 	InputMode get_input_mode() const;
@@ -771,6 +772,8 @@ VARIANT_ENUM_CAST(Control::Anchor);
 VARIANT_ENUM_CAST(Control::LayoutMode);
 VARIANT_ENUM_CAST(Control::LayoutDirection);
 VARIANT_ENUM_CAST(Control::TextDirection);
+VARIANT_BITFIELD_CAST(Control::VisibilityBehavior);
+VARIANT_ENUM_CAST(Control::InputMode);
 
 // G = get_drag_data_fw, C = can_drop_data_fw, D = drop_data_fw, U = underscore
 #define SET_DRAG_FORWARDING_CD(from, to) from->set_drag_forwarding(Callable(), callable_mp(this, &to::can_drop_data_fw).bind(from), callable_mp(this, &to::drop_data_fw).bind(from));

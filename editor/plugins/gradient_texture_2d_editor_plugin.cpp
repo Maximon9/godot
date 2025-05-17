@@ -303,7 +303,7 @@ GradientTexture2DEditor::GradientTexture2DEditor() {
 	texture_editor_rect = memnew(GradientTexture2DEdit);
 	add_child(texture_editor_rect);
 
-	set_mouse_filter(MOUSE_FILTER_STOP);
+	set_mouse_filter(INPUT_FILTER_STOP);
 	_set_snap_enabled(snap_button->is_pressed());
 	_set_snap_count(snap_count_edit->get_value());
 }

@@ -278,7 +278,7 @@ ThemeEditorPreview::ThemeEditorPreview() {
 	preview_root->add_child(preview_content);
 
 	preview_overlay = memnew(MarginContainer);
-	preview_overlay->set_mouse_filter(MOUSE_FILTER_IGNORE);
+	preview_overlay->set_mouse_filter(INPUT_FILTER_IGNORE);
 	preview_overlay->set_clip_contents(true);
 	preview_body->add_child(preview_overlay);
 

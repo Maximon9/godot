@@ -147,7 +147,7 @@ Label *EditorAbout::_create_section(Control *p_parent, const String &p_name, con
 
 		il->connect("item_activated", callable_mp(this, &EditorAbout::_item_activated).bind(il));
 	} else {
-		il->set_mouse_filter(Control::MOUSE_FILTER_IGNORE);
+		il->set_mouse_filter(Control::INPUT_FILTER_IGNORE);
 		il->set_focus_mode(Control::FOCUS_NONE);
 	}
 

@@ -380,7 +380,7 @@ TextureLayeredEditor::TextureLayeredEditor() {
 	set_custom_minimum_size(Size2(0, 256.0) * EDSCALE);
 
 	texture_rect = memnew(Control);
-	texture_rect->set_mouse_filter(MOUSE_FILTER_IGNORE);
+	texture_rect->set_mouse_filter(INPUT_FILTER_IGNORE);
 	texture_rect->connect(SceneStringName(draw), callable_mp(this, &TextureLayeredEditor::_texture_rect_draw));
 
 	add_child(texture_rect);

@@ -352,5 +352,5 @@ GraphFrame::GraphFrame() {
 	title_label->set_horizontal_alignment(HORIZONTAL_ALIGNMENT_CENTER);
 	titlebar_hbox->add_child(title_label);
 
-	set_mouse_filter(MOUSE_FILTER_STOP);
+	set_mouse_filter(INPUT_FILTER_STOP);
 }

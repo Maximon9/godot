@@ -1893,7 +1893,7 @@ bool Control::has_point(const Point2 &p_point) const {
 
 #pragma region Visibility Behavior
 
-void Control::set_visibility_behavior(int p_behavior) {
+void Control::set_visibility_behavior(BitField<Control::VisibilityBehavior> p_behavior) {
 	ERR_MAIN_THREAD_GUARD;
 
 	if (data.input_mode == p_behavior) {
@@ -1905,7 +1905,7 @@ void Control::set_visibility_behavior(int p_behavior) {
 	update_configuration_warnings();
 }
 
-int Control::get_visibility_behavior() const {
+BitField<Control::VisibilityBehavior> Control::get_visibility_behavior() const {
 	return data.visibility_behavior;
 }
 
@@ -4380,6 +4380,15 @@ void Control::_bind_methods() {
 	BIND_ENUM_CONSTANT(TEXT_DIRECTION_AUTO);
 	BIND_ENUM_CONSTANT(TEXT_DIRECTION_LTR);
 	BIND_ENUM_CONSTANT(TEXT_DIRECTION_RTL);
+
+	BIND_BITFIELD_FLAG(VISIBILITY_BEHAVIOR_ON_MOUSE);
+	BIND_BITFIELD_FLAG(VISIBILITY_BEHAVIOR_ON_TOUCH);
+	BIND_BITFIELD_FLAG(VISIBILITY_BEHAVIOR_ON_MOUSE_INPUTS);
+	BIND_BITFIELD_FLAG(VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS);
+
+	BIND_ENUM_CONSTANT(INPUT_MODE_TOUCH);
+	BIND_ENUM_CONSTANT(INPUT_MODE_MOUSE);
+	BIND_ENUM_CONSTANT(INPUT_MODE_BOTH);
 
 	ADD_SIGNAL(MethodInfo("resized"));
 	ADD_SIGNAL(MethodInfo("gui_input", PropertyInfo(Variant::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent")));

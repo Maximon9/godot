@@ -188,7 +188,7 @@ NinePatchRect::AxisStretchMode NinePatchRect::get_v_axis_stretch_mode() const {
 }
 
 NinePatchRect::NinePatchRect() {
-	set_mouse_filter(MOUSE_FILTER_IGNORE);
+	set_mouse_filter(INPUT_FILTER_IGNORE);
 }
 
 NinePatchRect::~NinePatchRect() {

@@ -1028,7 +1028,7 @@ CurveEditor::CurveEditor() {
 	empty_space->set_custom_minimum_size(Vector2(0, spacing));
 	add_child(empty_space);
 
-	set_mouse_filter(MOUSE_FILTER_STOP);
+	set_mouse_filter(INPUT_FILTER_STOP);
 	_set_snap_enabled(snap_button->is_pressed());
 	_set_snap_count(snap_count_edit->get_value());
 }

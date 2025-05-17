@@ -163,7 +163,7 @@ VSRerouteNode::VSRerouteNode() {
 
 	Control *slot_area = memnew(Control);
 	slot_area->set_custom_minimum_size(size);
-	slot_area->set_mouse_filter(Control::MOUSE_FILTER_IGNORE);
+	slot_area->set_mouse_filter(Control::INPUT_FILTER_IGNORE);
 	add_child(slot_area);
 
 	// Lay the input and output ports on top of each other to create the illusion of a single port.
@@ -6541,7 +6541,7 @@ VisualShaderEditor::VisualShaderEditor() {
 
 	PanelContainer *toolbar_panel = static_cast<PanelContainer *>(graph->get_menu_hbox()->get_parent());
 	toolbar_panel->set_anchors_and_offsets_preset(Control::PRESET_TOP_WIDE, PRESET_MODE_MINSIZE, 10);
-	toolbar_panel->set_mouse_filter(Control::MOUSE_FILTER_IGNORE);
+	toolbar_panel->set_mouse_filter(Control::INPUT_FILTER_IGNORE);
 
 	toolbar = memnew(HFlowContainer);
 	{
@@ -6855,7 +6855,7 @@ VisualShaderEditor::VisualShaderEditor() {
 	desc_hbox->add_child(highend_label);
 	highend_label->set_visible(false);
 	highend_label->set_text("Vulkan");
-	highend_label->set_mouse_filter(Control::MOUSE_FILTER_STOP);
+	highend_label->set_mouse_filter(Control::INPUT_FILTER_STOP);
 	highend_label->set_tooltip_text(TTR("High-end node"));
 
 	node_desc = memnew(RichTextLabel);
@@ -8295,7 +8295,7 @@ void VisualShaderNodePortPreview::setup(const Ref<VisualShader> &p_shader, Ref<S
 		add_child(checkerboard);
 	}
 
-	set_mouse_filter(MOUSE_FILTER_PASS);
+	set_mouse_filter(INPUT_FILTER_PASS);
 	shader = p_shader;
 	shader->connect_changed(callable_mp(this, &VisualShaderNodePortPreview::_shader_changed), CONNECT_DEFERRED);
 	preview_mat = p_preview_material;

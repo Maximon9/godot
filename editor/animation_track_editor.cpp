@@ -2009,7 +2009,7 @@ AnimationTimelineEdit::AnimationTimelineEdit() {
 	name_limit = 150 * EDSCALE;
 
 	play_position = memnew(Control);
-	play_position->set_mouse_filter(MOUSE_FILTER_PASS);
+	play_position->set_mouse_filter(INPUT_FILTER_PASS);
 	add_child(play_position);
 	play_position->set_anchors_and_offsets_preset(PRESET_FULL_RECT);
 	play_position->connect(SceneStringName(draw), callable_mp(this, &AnimationTimelineEdit::_play_position_draw));
@@ -2034,7 +2034,7 @@ AnimationTimelineEdit::AnimationTimelineEdit() {
 
 	Control *expander = memnew(Control);
 	expander->set_h_size_flags(SIZE_EXPAND_FILL);
-	expander->set_mouse_filter(MOUSE_FILTER_IGNORE);
+	expander->set_mouse_filter(INPUT_FILTER_IGNORE);
 	len_hb->add_child(expander);
 
 	time_icon = memnew(TextureRect);
@@ -3621,12 +3621,12 @@ void AnimationTrackEdit::_bind_methods() {
 
 AnimationTrackEdit::AnimationTrackEdit() {
 	play_position = memnew(Control);
-	play_position->set_mouse_filter(MOUSE_FILTER_PASS);
+	play_position->set_mouse_filter(INPUT_FILTER_PASS);
 	add_child(play_position);
 	play_position->set_anchors_and_offsets_preset(PRESET_FULL_RECT);
 	play_position->connect(SceneStringName(draw), callable_mp(this, &AnimationTrackEdit::_play_position_draw));
 	set_focus_mode(FOCUS_CLICK);
-	set_mouse_filter(MOUSE_FILTER_PASS); // Scroll has to work too for selection.
+	set_mouse_filter(INPUT_FILTER_PASS); // Scroll has to work too for selection.
 }
 
 //////////////////////////////////////
@@ -3831,7 +3831,7 @@ void AnimationTrackEditGroup::_zoom_changed() {
 }
 
 AnimationTrackEditGroup::AnimationTrackEditGroup() {
-	set_mouse_filter(MOUSE_FILTER_PASS);
+	set_mouse_filter(INPUT_FILTER_PASS);
 }
 
 //////////////////////////////////////
@@ -7795,7 +7795,7 @@ AnimationTrackEditor::AnimationTrackEditor() {
 	bottom_hf->add_child(inactive_player_warning);
 
 	Control *spacer = memnew(Control);
-	spacer->set_mouse_filter(MOUSE_FILTER_PASS);
+	spacer->set_mouse_filter(INPUT_FILTER_PASS);
 	spacer->set_h_size_flags(SIZE_EXPAND_FILL);
 	bottom_hf->add_child(spacer);
 
@@ -8013,7 +8013,7 @@ AnimationTrackEditor::AnimationTrackEditor() {
 
 	box_selection = memnew(Control);
 	box_selection_container->add_child(box_selection);
-	box_selection->set_mouse_filter(MOUSE_FILTER_IGNORE);
+	box_selection->set_mouse_filter(INPUT_FILTER_IGNORE);
 	box_selection->hide();
 	box_selection->connect(SceneStringName(draw), callable_mp(this, &AnimationTrackEditor::_box_selection_draw));
 
@@ -9261,11 +9261,11 @@ void AnimationMarkerEdit::_marker_rename_new_name_changed(const String &p_text) 
 
 AnimationMarkerEdit::AnimationMarkerEdit() {
 	play_position = memnew(Control);
-	play_position->set_mouse_filter(MOUSE_FILTER_PASS);
+	play_position->set_mouse_filter(INPUT_FILTER_PASS);
 	add_child(play_position);
 	play_position->connect(SceneStringName(draw), callable_mp(this, &AnimationMarkerEdit::_play_position_draw));
 	set_focus_mode(FOCUS_CLICK);
-	set_mouse_filter(MOUSE_FILTER_PASS); // Scroll has to work too for selection.
+	set_mouse_filter(INPUT_FILTER_PASS); // Scroll has to work too for selection.
 
 	menu = memnew(PopupMenu);
 	add_child(menu);

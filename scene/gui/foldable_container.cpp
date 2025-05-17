@@ -589,7 +589,7 @@ FoldableContainer::FoldableContainer(const String &p_text) {
 	text_buf.instantiate();
 	set_title(p_text);
 	set_focus_mode(FOCUS_ALL);
-	set_mouse_filter(MOUSE_FILTER_STOP);
+	set_mouse_filter(INPUT_FILTER_STOP);
 }
 
 FoldableContainer::~FoldableContainer() {

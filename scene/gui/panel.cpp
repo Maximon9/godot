@@ -53,5 +53,5 @@ void Panel::_bind_methods() {
 
 Panel::Panel() {
 	// Has visible stylebox, so stop by default.
-	set_mouse_filter(MOUSE_FILTER_STOP);
+	set_mouse_filter(INPUT_FILTER_STOP);
 }

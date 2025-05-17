@@ -175,8 +175,8 @@ EditorAssetLibraryItem::EditorAssetLibraryItem(bool p_clickable) {
 		category->connect(SceneStringName(pressed), callable_mp(this, &EditorAssetLibraryItem::_category_clicked));
 		author->connect(SceneStringName(pressed), callable_mp(this, &EditorAssetLibraryItem::_author_clicked));
 	} else {
-		title->set_mouse_filter(MOUSE_FILTER_IGNORE);
-		category->set_mouse_filter(MOUSE_FILTER_IGNORE);
+		title->set_mouse_filter(INPUT_FILTER_IGNORE);
+		category->set_mouse_filter(INPUT_FILTER_IGNORE);
 		author->set_underline_mode(LinkButton::UNDERLINE_MODE_NEVER);
 		author->set_default_cursor_shape(CURSOR_ARROW);
 	}
@@ -190,7 +190,7 @@ EditorAssetLibraryItem::EditorAssetLibraryItem(bool p_clickable) {
 	price->add_theme_style_override(CoreStringName(normal), label_margin);
 	price->set_tooltip_text(TTRC("License"));
 	price->set_accessibility_name(TTRC("License"));
-	price->set_mouse_filter(MOUSE_FILTER_PASS);
+	price->set_mouse_filter(INPUT_FILTER_PASS);
 
 	author_price_hbox->add_child(price);
 

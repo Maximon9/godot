@@ -1501,12 +1501,12 @@ void ColorPicker::_pick_button_pressed() {
 		picker_window->connect(SceneStringName(window_input), callable_mp(this, &ColorPicker::_target_gui_input));
 
 		picker_preview = memnew(Panel);
-		picker_preview->set_mouse_filter(MOUSE_FILTER_IGNORE);
+		picker_preview->set_mouse_filter(INPUT_FILTER_IGNORE);
 		picker_preview->set_size(Vector2i(55, 72));
 		picker_window->add_child(picker_preview);
 
 		picker_preview_color = memnew(Panel);
-		picker_preview_color->set_mouse_filter(MOUSE_FILTER_IGNORE);
+		picker_preview_color->set_mouse_filter(INPUT_FILTER_IGNORE);
 		if (!has_feature_exclude_from_capture) {
 			picker_preview_color->set_size(Vector2i(24, 24));
 			picker_preview_color->set_position(Vector2i(2, 2));
@@ -1518,7 +1518,7 @@ void ColorPicker::_pick_button_pressed() {
 
 		if (has_feature_exclude_from_capture) {
 			picker_texture_zoom = memnew(TextureRect);
-			picker_texture_zoom->set_mouse_filter(MOUSE_FILTER_IGNORE);
+			picker_texture_zoom->set_mouse_filter(INPUT_FILTER_IGNORE);
 			picker_texture_zoom->set_custom_minimum_size(Vector2i(51, 51));
 			picker_texture_zoom->set_position(Vector2i(2, 2));
 			picker_texture_zoom->set_texture_filter(CanvasItem::TEXTURE_FILTER_NEAREST);
@@ -1695,18 +1695,18 @@ void ColorPicker::_pick_button_pressed_legacy() {
 		picker_texture_rect->connect(SceneStringName(gui_input), callable_mp(this, &ColorPicker::_picker_texture_input));
 
 		picker_preview = memnew(Panel);
-		picker_preview->set_mouse_filter(MOUSE_FILTER_IGNORE);
+		picker_preview->set_mouse_filter(INPUT_FILTER_IGNORE);
 		picker_preview->set_size(Vector2i(55, 72));
 		picker_window->add_child(picker_preview);
 
 		picker_preview_color = memnew(Panel);
-		picker_preview_color->set_mouse_filter(MOUSE_FILTER_IGNORE);
+		picker_preview_color->set_mouse_filter(INPUT_FILTER_IGNORE);
 		picker_preview_color->set_size(Vector2i(51, 15));
 		picker_preview_color->set_position(Vector2i(2, 55));
 		picker_preview->add_child(picker_preview_color);
 
 		picker_texture_zoom = memnew(TextureRect);
-		picker_texture_zoom->set_mouse_filter(MOUSE_FILTER_IGNORE);
+		picker_texture_zoom->set_mouse_filter(INPUT_FILTER_IGNORE);
 		picker_texture_zoom->set_custom_minimum_size(Vector2i(51, 51));
 		picker_texture_zoom->set_position(Vector2i(2, 2));
 		picker_texture_zoom->set_texture_filter(CanvasItem::TEXTURE_FILTER_NEAREST);
@@ -2129,7 +2129,7 @@ ColorPicker::ColorPicker() {
 #endif // TOOLS_ENABLED
 		text_type->set_flat(true);
 		text_type->set_focus_mode(FOCUS_NONE);
-		text_type->set_mouse_filter(MOUSE_FILTER_IGNORE);
+		text_type->set_mouse_filter(INPUT_FILTER_IGNORE);
 	}
 
 	c_text = memnew(LineEdit);
@@ -2185,7 +2185,7 @@ ColorPicker::ColorPicker() {
 
 	palette_name = memnew(Label);
 	palette_name->hide();
-	palette_name->set_mouse_filter(MOUSE_FILTER_PASS);
+	palette_name->set_mouse_filter(INPUT_FILTER_PASS);
 	swatches_vbc->add_child(palette_name);
 
 	swatches_vbc->add_child(preset_container);
