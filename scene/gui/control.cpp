@@ -38,6 +38,7 @@
 #include "core/os/os.h"
 #include "core/string/string_builder.h"
 #include "core/string/translation_server.h"
+#include "core/variant/variant_utility.h"
 #include "scene/gui/scroll_container.h"
 #include "scene/main/canvas_layer.h"
 #include "scene/main/window.h"
@@ -1917,23 +1918,28 @@ bool Control::has_point(const Point2 &p_point) const {
 void Control::set_visibility_behavior(BitField<Control::VisibilityBehavior> p_behavior) {
 	ERR_MAIN_THREAD_GUARD;
 
-	if (data.input_mode == p_behavior) {
+	if ((int)data.visibility_behavior == (int)p_behavior) {
 		return;
 	}
 	// data.pre_visibility_behavior = data.visibility_behavior;
 
-	if (data.visibility_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH) && p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS)) {
-		if (p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH)) {
-			p_behavior.clear_flag(VISIBILITY_BEHAVIOR_ON_TOUCH);
-		}
-	}
-	if (data.visibility_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS) && p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH)) {
-		if (p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS)) {
-			p_behavior.clear_flag(VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS);
-		}
-	}
+	// if (data.visibility_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH) && p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS)) {
+	// 	if (p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH)) {
+	// 		p_behavior.clear_flag(VISIBILITY_BEHAVIOR_ON_TOUCH);
+	// 	}
+	// }
+	// if (data.visibility_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS) && p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH)) {
+	// 	if (p_behavior.has_flag(VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS)) {
+	// 		p_behavior.clear_flag(VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS);
+	// 	}
+	// }
+	uint64_t raw_flags = (uint64_t)p_behavior; // or just (int)flags
+
+	print_line("Flags: " + itos(raw_flags)); // OR, to go through VariantUtilityFunctions::print:
+
 	data.visibility_behavior = p_behavior;
-	// notify_property_list_changed();
+
+	notify_property_list_changed();
 	update_configuration_warnings();
 }
 
