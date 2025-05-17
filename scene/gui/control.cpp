@@ -1896,6 +1896,44 @@ bool Control::has_point(const Point2 &p_point) const {
 	return Rect2(Point2(), get_size()).has_point(p_point);
 }
 
+#pragma region Visibility Behavior
+
+void Control::set_visibility_behavior(int p_behavior) {
+	ERR_MAIN_THREAD_GUARD;
+
+	if (data.input_mode == p_behavior) {
+		return;
+	}
+
+	data.visibility_behavior = p_behavior;
+	// notify_property_list_changed();
+	update_configuration_warnings();
+}
+
+int Control::get_visibility_behavior() const {
+	return data.visibility_behavior;
+}
+
+#pragma endregion
+
+#pragma region Input Functions
+
+void Control::set_input_mode(InputMode p_mode) {
+	ERR_MAIN_THREAD_GUARD;
+
+	if (data.input_mode == p_mode) {
+		return;
+	}
+
+	data.input_mode = p_mode;
+	notify_property_list_changed();
+	update_configuration_warnings();
+}
+
+Control::InputMode Control::get_input_mode() const {
+	return data.input_mode;
+}
+
 #pragma region Mouse Functions
 
 void Control::set_mouse_filter(InputFilter p_filter) {
@@ -2017,7 +2055,7 @@ void Control::set_touch_filter(InputFilter p_filter) {
 
 	// Todo
 	if (get_viewport()) {
-		get_viewport()->_gui_update_mouse_over();
+		get_viewport()->_gui_update_touch_over();
 	}
 }
 
@@ -2072,7 +2110,7 @@ void Control::_update_touch_behavior_recursive() {
 	}
 	// Todo
 	if (get_viewport()) {
-		get_viewport()->_gui_update_mouse_over();
+		get_viewport()->_gui_update_touch_over();
 	}
 }
 
@@ -2099,6 +2137,8 @@ bool Control::is_force_pass_drag_events() const {
 	ERR_READ_THREAD_GUARD_V(false);
 	return data.force_pass_drag_events;
 }
+
+#pragma endregion
 
 #pragma endregion
 
@@ -4079,6 +4119,12 @@ void Control::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("accessibility_drag"), &Control::accessibility_drag);
 	ClassDB::bind_method(D_METHOD("accessibility_drop"), &Control::accessibility_drop);
 
+	ClassDB::bind_method(D_METHOD("set_visibility_behavior", "behavior"), &Control::set_visibility_behavior);
+	ClassDB::bind_method(D_METHOD("get_visibility_behavior"), &Control::get_visibility_behavior);
+
+	ClassDB::bind_method(D_METHOD("set_input_mode", "mode"), &Control::set_input_mode);
+	ClassDB::bind_method(D_METHOD("get_input_mode"), &Control::get_input_mode);
+
 	ClassDB::bind_method(D_METHOD("set_mouse_filter", "filter"), &Control::set_mouse_filter);
 	ClassDB::bind_method(D_METHOD("get_mouse_filter"), &Control::get_mouse_filter);
 	ClassDB::bind_method(D_METHOD("get_mouse_filter_with_override"), &Control::get_mouse_filter_with_override);
@@ -4088,6 +4134,16 @@ void Control::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("set_force_pass_scroll_events", "force_pass_scroll_events"), &Control::set_force_pass_scroll_events);
 	ClassDB::bind_method(D_METHOD("is_force_pass_scroll_events"), &Control::is_force_pass_scroll_events);
+
+	ClassDB::bind_method(D_METHOD("set_touch_filter", "filter"), &Control::set_mouse_filter);
+	ClassDB::bind_method(D_METHOD("get_touch_filter"), &Control::get_mouse_filter);
+	ClassDB::bind_method(D_METHOD("get_touch_filter_with_override"), &Control::get_mouse_filter_with_override);
+
+	ClassDB::bind_method(D_METHOD("set_touch_behavior_recursive", "mouse_behavior_recursive"), &Control::set_mouse_behavior_recursive);
+	ClassDB::bind_method(D_METHOD("get_touch_behavior_recursive"), &Control::get_mouse_behavior_recursive);
+
+	ClassDB::bind_method(D_METHOD("set_force_pass_drag_events", "force_pass_drag_events"), &Control::set_force_pass_scroll_events);
+	ClassDB::bind_method(D_METHOD("is_force_pass_drag_events"), &Control::is_force_pass_scroll_events);
 
 	ClassDB::bind_method(D_METHOD("set_clip_contents", "enable"), &Control::set_clip_contents);
 	ClassDB::bind_method(D_METHOD("is_clipping_contents"), &Control::is_clipping_contents);
@@ -4210,11 +4266,18 @@ void Control::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "focus_mode", PROPERTY_HINT_ENUM, "None,Click,All,Accessibility"), "set_focus_mode", "get_focus_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "focus_behavior_recursive", PROPERTY_HINT_ENUM, "Inherited,Disabled,Enabled"), "set_focus_behavior_recursive", "get_focus_behavior_recursive");
 
+	ADD_GROUP("Input", "");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "input_mode", PROPERTY_HINT_ENUM, "Both,Mouse,Touch"), "set_input_mode", "get_input_mode");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "visibility_behavior", PROPERTY_HINT_FLAGS, "On Mouse,On Touch,On Mouse Inputs,On Touch Inputs"), "set_visibility_behavior", "get_visibility_behavior");
 	ADD_GROUP("Mouse", "mouse_");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "mouse_filter", PROPERTY_HINT_ENUM, "Stop,Pass (Propagate Up),Ignore"), "set_mouse_filter", "get_mouse_filter");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "mouse_behavior_recursive", PROPERTY_HINT_ENUM, "Inherited,Disabled,Enabled"), "set_mouse_behavior_recursive", "get_mouse_behavior_recursive");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "mouse_force_pass_scroll_events"), "set_force_pass_scroll_events", "is_force_pass_scroll_events");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "mouse_default_cursor_shape", PROPERTY_HINT_ENUM, "Arrow,I-Beam,Pointing Hand,Cross,Wait,Busy,Drag,Can Drop,Forbidden,Vertical Resize,Horizontal Resize,Secondary Diagonal Resize,Main Diagonal Resize,Move,Vertical Split,Horizontal Split,Help"), "set_default_cursor_shape", "get_default_cursor_shape");
+	ADD_GROUP("Touch", "touch_");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "touch_filter", PROPERTY_HINT_ENUM, "Stop,Pass (Propagate Up),Ignore"), "set_touch_filter", "get_touch_filter");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "touch_behavior_recursive", PROPERTY_HINT_ENUM, "Inherited,Disabled,Enabled"), "set_touch_behavior_recursive", "get_touch_behavior_recursive");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "touch_force_pass_drag_events"), "set_force_pass_drag_events", "is_force_pass_drag_events");
 
 	ADD_GROUP("Input", "");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "shortcut_context", PROPERTY_HINT_NODE_TYPE, "Node"), "set_shortcut_context", "get_shortcut_context");

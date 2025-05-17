@@ -303,6 +303,16 @@ void CollisionObject3D::_mouse_exit() {
 	emit_signal(SceneStringName(mouse_exited));
 }
 
+void CollisionObject3D::_touch_enter() {
+	GDVIRTUAL_CALL(_touch_enter);
+	emit_signal(SceneStringName(touch_entered));
+}
+
+void CollisionObject3D::_touch_exit() {
+	GDVIRTUAL_CALL(_touch_exit);
+	emit_signal(SceneStringName(touch_exited));
+}
+
 void CollisionObject3D::set_body_mode(PhysicsServer3D::BodyMode p_mode) {
 	ERR_FAIL_COND(area);
 
@@ -498,6 +508,9 @@ void CollisionObject3D::_bind_methods() {
 	ADD_SIGNAL(MethodInfo("input_event", PropertyInfo(Variant::OBJECT, "camera", PROPERTY_HINT_RESOURCE_TYPE, "Node"), PropertyInfo(Variant::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent"), PropertyInfo(Variant::VECTOR3, "event_position"), PropertyInfo(Variant::VECTOR3, "normal"), PropertyInfo(Variant::INT, "shape_idx")));
 	ADD_SIGNAL(MethodInfo("mouse_entered"));
 	ADD_SIGNAL(MethodInfo("mouse_exited"));
+
+	ADD_SIGNAL(MethodInfo("touch_entered"));
+	ADD_SIGNAL(MethodInfo("touch_exited"));
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "disable_mode", PROPERTY_HINT_ENUM, "Remove,Make Static,Keep Active"), "set_disable_mode", "get_disable_mode");
 

@@ -77,6 +77,12 @@ public:
 	const StringName mouse_exited = "mouse_exited";
 	const StringName mouse_shape_entered = "mouse_shape_entered";
 	const StringName mouse_shape_exited = "mouse_shape_exited";
+
+	const StringName touch_entered = "touch_entered";
+	const StringName touch_exited = "touch_exited";
+	const StringName touch_shape_entered = "touch_shape_entered";
+	const StringName touch_shape_exited = "touch_shape_exited";
+
 	const StringName focus_entered = "focus_entered";
 	const StringName focus_exited = "focus_exited";
 

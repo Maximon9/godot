@@ -179,11 +179,11 @@ public:
 		INPUT_MODE_MOUSE,
 		INPUT_MODE_BOTH,
 	};
-	enum VisibilityMode {
-		VISIBILITY_MODE_ON_MOUSE = 1 << 0, // 0b0001 = 1
-		VISIBILITY_MODE_ON_TOUCH = 1 << 1, // 0b0010 = 2
-		VISIBILITY_MODE_ON_MOUSE_INPUTS = 1 << 2, // 0b0100 = 4
-		VISIBILITY_MODE_ON_TOUCH_INPUTS = 1 << 3 // 0b1000 = 8
+	enum VisibilityBehavior {
+		VISIBILITY_BEHAVIOR_ON_MOUSE = 1 << 0, // 0b0001 = 1
+		VISIBILITY_BEHAVIOR_ON_TOUCH = 1 << 1, // 0b0010 = 2
+		VISIBILITY_BEHAVIOR_ON_MOUSE_INPUTS = 1 << 2, // 0b0100 = 4
+		VISIBILITY_BEHAVIOR_ON_TOUCH_INPUTS = 1 << 3 // 0b1000 = 8
 	};
 
 	enum GizmoMode {
@@ -255,6 +255,10 @@ private:
 		Point2 custom_minimum_size;
 
 		// Input events and rendering.
+
+		int visibility_behavior = VISIBILITY_BEHAVIOR_ON_MOUSE | VISIBILITY_BEHAVIOR_ON_TOUCH;
+
+		InputMode input_mode = INPUT_MODE_BOTH;
 
 		InputFilter mouse_filter = INPUT_FILTER_STOP;
 		InputBehaviorRecursive mouse_behavior_recursive = INPUT_BEHAVIOR_INHERITED;
@@ -583,6 +587,12 @@ public:
 	void accept_event();
 
 	virtual bool has_point(const Point2 &p_point) const;
+
+	void set_visibility_behavior(int p_behavior);
+	int get_visibility_behavior() const;
+
+	void set_input_mode(InputMode p_mode);
+	InputMode get_input_mode() const;
 
 	void set_mouse_filter(InputFilter p_filter);
 	InputFilter get_mouse_filter() const;

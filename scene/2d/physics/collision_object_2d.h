@@ -97,11 +97,18 @@ protected:
 	void _update_pickable();
 	friend class Viewport;
 	void _input_event_call(Viewport *p_viewport, const Ref<InputEvent> &p_input_event, int p_shape);
+
 	void _mouse_enter();
 	void _mouse_exit();
 
 	void _mouse_shape_enter(int p_shape);
 	void _mouse_shape_exit(int p_shape);
+
+	void _touch_enter();
+	void _touch_exit();
+
+	void _touch_shape_enter(int p_shape);
+	void _touch_shape_exit(int p_shape);
 
 	void set_only_update_transform_changes(bool p_enable);
 	bool is_only_update_transform_changes_enabled() const;
@@ -115,6 +122,11 @@ protected:
 	GDVIRTUAL0(_mouse_exit)
 	GDVIRTUAL1(_mouse_shape_enter, int)
 	GDVIRTUAL1(_mouse_shape_exit, int)
+
+	GDVIRTUAL0(_touch_enter)
+	GDVIRTUAL0(_touch_exit)
+	GDVIRTUAL1(_touch_shape_enter, int)
+	GDVIRTUAL1(_touch_shape_exit, int)
 public:
 	void set_collision_layer(uint32_t p_layer);
 	uint32_t get_collision_layer() const;

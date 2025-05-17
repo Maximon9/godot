@@ -367,32 +367,35 @@ private:
 	Ref<Texture2D> vrs_texture;
 
 	struct GUI {
-		HashMap<int, ObjectID> touch_focus;
-		BitField<MouseButtonMask> mouse_focus_mask = MouseButtonMask::NONE;
 		Control *key_focus = nullptr;
 
+		BitField<MouseButtonMask> mouse_focus_mask = MouseButtonMask::NONE;
 		bool mouse_in_viewport = false;
 		Control *mouse_focus = nullptr;
 		Control *mouse_click_grabber = nullptr;
 		Control *mouse_over = nullptr;
 		LocalVector<Control *> mouse_over_hierarchy;
 		bool sending_mouse_enter_exit_notifications = false;
+		Point2 last_mouse_pos;
+		Control *drag_mouse_over = nullptr;
 
 		bool touch_in_viewport = false;
+		HashMap<int, ObjectID> touch_focus;
 		Control *touch_click_grabber = nullptr;
 		Control *touch_over = nullptr;
 		LocalVector<Control *> touch_over_hierarchy;
 		bool sending_touch_enter_exit_notifications = false;
+		Point2 last_touch_pos;
+		Point2 current_touch_position;
+		Control *drag_touch_over = nullptr;
 
 		Window *subwindow_over = nullptr; // mouse_over and subwindow_over are mutually exclusive. At all times at least one of them is nullptr.
 		Window *windowmanager_window_over = nullptr; // Only used in root Viewport.
-		Control *drag_mouse_over = nullptr;
 		Control *tooltip_control = nullptr;
 		Window *tooltip_popup = nullptr;
 		Label *tooltip_label = nullptr;
 		String tooltip_text;
 		Point2 tooltip_pos;
-		Point2 last_mouse_pos;
 		Point2 drag_accum;
 		bool drag_attempted = false;
 		Variant drag_data; // Only used in root-Viewport and SubViewports, that are not children of a SubViewportContainer.
@@ -483,6 +486,10 @@ private:
 	void _drop_mouse_focus();
 	void _drop_physics_mouseover(bool p_paused_only = false);
 
+	void _drop_touch_over(Control *p_until_control = nullptr);
+	void _drop_touch_focus();
+	void _drop_physics_touchover(bool p_paused_only = false);
+
 	void _update_canvas_items(Node *p_node);
 
 	friend class Window;
@@ -499,6 +506,10 @@ private:
 	void _update_mouse_over();
 	virtual void _update_mouse_over(Vector2 p_pos);
 	virtual void _mouse_leave_viewport();
+
+	void _update_touch_over();
+	virtual void _update_touch_over(Vector2 p_pos);
+	virtual void _touch_leave_viewport();
 
 	virtual bool _can_consume_input_events() const { return true; }
 	uint64_t event_count = 0;
@@ -629,6 +640,9 @@ public:
 #endif // DISABLE_DEPRECATED
 	void notify_mouse_entered();
 	void notify_mouse_exited();
+
+	void notify_touch_entered();
+	void notify_touch_exited();
 
 	void set_disable_input(bool p_disable);
 	bool is_input_disabled() const;
@@ -761,8 +775,15 @@ private:
 	HashMap<ObjectID, uint64_t> physics_2d_mouseover;
 	// Collider & shape to frame
 	HashMap<Pair<ObjectID, int>, uint64_t> physics_2d_shape_mouseover;
+
+	// Collider to frame
+	HashMap<ObjectID, uint64_t> physics_2d_touchover;
+	// Collider & shape to frame
+	HashMap<Pair<ObjectID, int>, uint64_t> physics_2d_shape_touchover;
+
 	// Cleans up colliders corresponding to old frames or all of them.
 	void _cleanup_mouseover_colliders(bool p_clean_all_frames, bool p_paused_only, uint64_t p_frame_reference = 0);
+	void _cleanup_touchover_colliders(bool p_clean_all_frames, bool p_paused_only, uint64_t p_frame_reference = 0);
 #endif // PHYSICS_2D_DISABLED
 
 public:

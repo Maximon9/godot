@@ -28,6 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
+#pragma region Main
+
 #include "viewport.h"
 
 #include "core/config/project_settings.h"
@@ -2809,6 +2811,48 @@ void Viewport::_drop_physics_mouseover(bool p_paused_only) {
 #endif // PHYSICS_3D_DISABLED
 }
 
+void Viewport::_drop_touch_focus() {
+	HashMap<int, ObjectID> *touch_focus = &gui.touch_focus;
+	gui.touch_focus.clear();
+
+	if (!touch_focus->is_empty()) {
+		return;
+	}
+
+	for (HashMap<int, ObjectID>::Iterator it = touch_focus->begin(); it != touch_focus->end(); ++it) {
+		int touch_index = it->key;
+		Ref<Control> control = it->value;
+		Ref<InputEventScreenTouch> tb;
+		tb.instantiate();
+		tb->set_index(touch_index);
+		tb->set_pressed(false);
+		tb->set_device(InputEvent::DEVICE_ID_INTERNAL);
+		control->_call_gui_input(tb);
+	}
+}
+
+void Viewport::_drop_physics_touchover(bool p_paused_only) {
+#ifndef PHYSICS_2D_DISABLED
+	_cleanup_touchover_colliders(true, p_paused_only);
+#endif // PHYSICS_2D_DISABLED
+
+#ifndef PHYSICS_3D_DISABLED
+	if (physics_object_over.is_valid()) {
+		CollisionObject3D *co = ObjectDB::get_instance<CollisionObject3D>(physics_object_over);
+		if (co) {
+			if (!co->is_inside_tree()) {
+				physics_object_over = ObjectID();
+				physics_object_capture = ObjectID();
+			} else if (!(p_paused_only && co->can_process())) {
+				co->_touch_exit();
+				physics_object_over = ObjectID();
+				physics_object_capture = ObjectID();
+			}
+		}
+	}
+#endif // PHYSICS_3D_DISABLED
+}
+
 void Viewport::_gui_grab_click_focus(Control *p_control) {
 	gui.mouse_click_grabber = p_control;
 	callable_mp(this, &Viewport::_post_gui_grab_click_focus).call_deferred();
@@ -3424,6 +3468,193 @@ void Viewport::_mouse_leave_viewport() {
 	notification(NOTIFICATION_VP_MOUSE_EXIT);
 }
 
+void Viewport::_update_touch_over() {
+	// Update gui.touch_over and gui.subwindow_over in all Viewports.
+	// Send necessary touch_enter/touch_exit signals and the TOUCH_ENTER/TOUCH_EXIT notifications for every Viewport in the SceneTree.
+
+	if (is_attached_in_viewport()) {
+		// Execute this function only, when it is processed by a native Window or a SubViewport, that has no SubViewportContainer as parent.
+		return;
+	}
+
+	if (get_tree()->get_root()->is_embedding_subwindows() || is_sub_viewport()) {
+		// Use embedder logic for calculating touch position.
+		_update_touch_over(gui.last_touch_pos);
+	} else {
+		if (gui_is_dragging()) {
+			// Native Window: Use DisplayServer logic for calculating touch position.
+			Window *receiving_window = get_tree()->get_root()->gui.windowmanager_window_over;
+			if (!receiving_window) {
+				return;
+			}
+
+			receiving_window->_update_touch_over(gui.current_touch_position);
+		} else {
+			_update_touch_over(gui.last_touch_pos);
+		}
+	}
+}
+
+void Viewport::_update_touch_over(Vector2 p_pos) {
+	gui.last_touch_pos = p_pos;
+	// Look for embedded windows at touch position.
+	if (is_embedding_subwindows()) {
+		for (int i = gui.sub_windows.size() - 1; i >= 0; i--) {
+			Window *sw = gui.sub_windows[i].window;
+			Rect2 swrect = Rect2(sw->get_position(), sw->get_size());
+			Rect2 swrect_border = swrect;
+
+			if (!sw->get_flag(Window::FLAG_BORDERLESS)) {
+				int title_height = sw->theme_cache.title_height;
+				int margin = sw->theme_cache.resize_margin;
+				swrect_border.position.y -= title_height + margin;
+				swrect_border.size.y += title_height + margin * 2;
+				swrect_border.position.x -= margin;
+				swrect_border.size.x += margin * 2;
+			}
+
+			if (swrect_border.has_point(p_pos)) {
+				if (gui.touch_over) {
+					_drop_touch_over();
+				} else if (!gui.subwindow_over) {
+					_drop_physics_touchover();
+				}
+				if (swrect.has_point(p_pos)) {
+					if (sw != gui.subwindow_over) {
+						if (gui.subwindow_over) {
+							gui.subwindow_over->_touch_leave_viewport();
+						}
+						gui.subwindow_over = sw;
+					}
+					if (!sw->is_input_disabled()) {
+						sw->_update_touch_over(sw->get_final_transform().affine_inverse().xform(p_pos - sw->get_position()));
+					}
+				} else {
+					if (gui.subwindow_over) {
+						gui.subwindow_over->_touch_leave_viewport();
+						gui.subwindow_over = nullptr;
+					}
+				}
+				return;
+			}
+		}
+
+		if (gui.subwindow_over) {
+			gui.subwindow_over->_touch_leave_viewport();
+			gui.subwindow_over = nullptr;
+		}
+	}
+
+	// Look for Controls at touch position.
+	Control *over = gui_find_control(p_pos);
+	get_section_root_viewport()->gui.target_control = over;
+	bool notify_embedded_viewports = false;
+	if (over != gui.touch_over || (!over && !gui.touch_over_hierarchy.is_empty())) {
+		// Find the common ancestor of `gui.touch_over` and `over`.
+		Control *common_ancestor = nullptr;
+		LocalVector<Control *> over_ancestors;
+
+		if (over) {
+			// Get all ancestors that the touch is currently over and need an enter signal.
+			CanvasItem *ancestor = over;
+			while (ancestor) {
+				Control *ancestor_control = Object::cast_to<Control>(ancestor);
+				if (ancestor_control) {
+					if (ancestor_control->get_touch_filter_with_override() != Control::INPUT_FILTER_IGNORE) {
+						int found = gui.touch_over_hierarchy.find(ancestor_control);
+						if (found >= 0) {
+							common_ancestor = gui.touch_over_hierarchy[found];
+							break;
+						}
+						over_ancestors.push_back(ancestor_control);
+					}
+					if (ancestor_control->get_touch_filter_with_override() == Control::INPUT_FILTER_STOP) {
+						// INPUT_FILTER_STOP breaks the propagation chain.
+						break;
+					}
+				}
+				if (ancestor->is_set_as_top_level()) {
+					// Top level breaks the propagation chain.
+					break;
+				}
+				ancestor = ancestor->get_parent_item();
+			}
+		}
+
+		if (gui.touch_over || !gui.touch_over_hierarchy.is_empty()) {
+			// Send Touch Exit Self and Touch Exit notifications.
+			_drop_touch_over(common_ancestor);
+		} else {
+			_drop_physics_touchover();
+		}
+
+		if (over) {
+			gui.touch_over = over;
+			gui.touch_over_hierarchy.reserve(gui.touch_over_hierarchy.size() + over_ancestors.size());
+
+			gui.sending_touch_enter_exit_notifications = true;
+
+			// Send Touch Enter notifications to parents first.
+			for (int i = over_ancestors.size() - 1; i >= 0; i--) {
+				gui.touch_over_hierarchy.push_back(over_ancestors[i]);
+				over_ancestors[i]->notification(Control::NOTIFICATION_TOUCH_ENTER);
+			}
+
+			// Send Touch Enter Self notification.
+			if (gui.touch_over) {
+				gui.touch_over->notification(Control::NOTIFICATION_TOUCH_ENTER_SELF);
+			}
+
+			gui.sending_touch_enter_exit_notifications = false;
+
+			notify_embedded_viewports = true;
+		}
+	}
+
+	if (over) {
+		SubViewportContainer *c = Object::cast_to<SubViewportContainer>(over);
+		if (!c) {
+			return;
+		}
+		Vector2 pos = c->get_global_transform_with_canvas().affine_inverse().xform(p_pos);
+		if (c->is_stretch_enabled()) {
+			pos /= c->get_stretch_shrink();
+		}
+
+		for (int i = 0; i < c->get_child_count(); i++) {
+			SubViewport *v = Object::cast_to<SubViewport>(c->get_child(i));
+			if (!v || v->is_input_disabled()) {
+				continue;
+			}
+			if (notify_embedded_viewports) {
+				v->notification(NOTIFICATION_VP_TOUCH_ENTER);
+			}
+			v->_update_touch_over(v->get_final_transform().affine_inverse().xform(pos));
+		}
+
+		Viewport *section_root = get_section_root_viewport();
+		if (section_root && c->is_touch_target_enabled()) {
+			// Evaluating `touch_target` and adjusting target_control needs to happen
+			// after `_update_touch_over` in the SubViewports, because otherwise physics picking
+			// would not work inside SubViewports.
+			section_root->gui.target_control = over;
+		}
+	}
+}
+
+void Viewport::_touch_leave_viewport() {
+	if (!is_inside_tree() || is_input_disabled()) {
+		return;
+	}
+	if (gui.subwindow_over) {
+		gui.subwindow_over->_touch_leave_viewport();
+		gui.subwindow_over = nullptr;
+	} else if (gui.touch_over) {
+		_drop_touch_over();
+	}
+	notification(NOTIFICATION_VP_TOUCH_EXIT);
+}
+
 void Viewport::_drop_mouse_over(Control *p_until_control) {
 	if (gui.sending_mouse_enter_exit_notifications) {
 		// If notifications are already being sent, defer call.
@@ -3462,6 +3693,46 @@ void Viewport::_drop_mouse_over(Control *p_until_control) {
 	}
 	gui.mouse_over_hierarchy.resize(notification_until);
 	gui.sending_mouse_enter_exit_notifications = false;
+}
+
+void Viewport::_drop_touch_over(Control *p_until_control) {
+	if (gui.sending_touch_enter_exit_notifications) {
+		// If notifications are already being sent, defer call.
+		callable_mp(this, &Viewport::_drop_touch_over).call_deferred(p_until_control);
+		return;
+	}
+
+	_gui_cancel_tooltip();
+	SubViewportContainer *c = Object::cast_to<SubViewportContainer>(gui.touch_over);
+	if (c) {
+		for (int i = 0; i < c->get_child_count(); i++) {
+			SubViewport *v = Object::cast_to<SubViewport>(c->get_child(i));
+			if (!v) {
+				continue;
+			}
+			v->_touch_leave_viewport();
+		}
+	}
+
+	gui.sending_touch_enter_exit_notifications = true;
+	if (gui.touch_over && gui.touch_over->is_inside_tree()) {
+		gui.touch_over->notification(Control::NOTIFICATION_TOUCH_EXIT_SELF);
+	}
+	Viewport *section_root = get_section_root_viewport();
+	if (section_root && section_root->gui.target_control == gui.touch_over) {
+		section_root->gui.target_control = nullptr;
+	}
+	gui.touch_over = nullptr;
+
+	// Send Mouse Exit notifications to children first. Don't send to p_until_control or above.
+	int notification_until = p_until_control ? gui.touch_over_hierarchy.find(p_until_control) + 1 : 0;
+	for (int i = gui.touch_over_hierarchy.size() - 1; i >= notification_until; i--) {
+		if (gui.touch_over_hierarchy[i]->is_inside_tree()) {
+			gui.touch_over_hierarchy[i]->notification(Control::NOTIFICATION_TOUCH_EXIT);
+		}
+	}
+	gui.touch_over_hierarchy.resize(notification_until);
+	gui.sending_touch_enter_exit_notifications = false;
 }
 
 void Viewport::push_input(const Ref<InputEvent> &p_event, bool p_local_coords) {
@@ -3608,6 +3879,22 @@ void Viewport::notify_mouse_exited() {
 		return;
 	}
 	_mouse_leave_viewport();
+}
+
+void Viewport::notify_touch_entered() {
+	if (gui.mouse_in_viewport) {
+		WARN_PRINT_ED("The Viewport was previously notified that the mouse is in its area. There is no need to notify it at this time.");
+		return;
+	}
+	notification(NOTIFICATION_VP_TOUCH_ENTER);
+}
+
+void Viewport::notify_touch_exited() {
+	if (!gui.touch_in_viewport) {
+		WARN_PRINT_ED("The Viewport was previously notified that the mouse has left its area. There is no need to notify it at this time.");
+		return;
+	}
+	_touch_leave_viewport();
 }
 
 #if !defined(PHYSICS_2D_DISABLED) || !defined(PHYSICS_3D_DISABLED)
@@ -4366,6 +4653,76 @@ void Viewport::_cleanup_mouseover_colliders(bool p_clean_all_frames, bool p_paus
 		shapes_to_mouse_exit.pop_front();
 	}
 }
+
+void Viewport::_cleanup_touchover_colliders(bool p_clean_all_frames, bool p_paused_only, uint64_t p_frame_reference) {
+	List<ObjectID> to_erase;
+	List<ObjectID> to_touch_exit;
+
+	for (const KeyValue<ObjectID, uint64_t> &E : physics_2d_touchover) {
+		if (!p_clean_all_frames && E.value == p_frame_reference) {
+			continue;
+		}
+
+		Object *o = ObjectDB::get_instance(E.key);
+		if (o) {
+			CollisionObject2D *co = Object::cast_to<CollisionObject2D>(o);
+			if (co && co->is_inside_tree()) {
+				if (p_clean_all_frames && p_paused_only && co->can_process()) {
+					continue;
+				}
+				to_touch_exit.push_back(E.key);
+			}
+		}
+		to_erase.push_back(E.key);
+	}
+
+	while (to_erase.size()) {
+		physics_2d_touchover.erase(to_erase.front()->get());
+		to_erase.pop_front();
+	}
+
+	// Per-shape.
+	List<Pair<ObjectID, int>> shapes_to_erase;
+	List<Pair<ObjectID, int>> shapes_to_touch_exit;
+
+	for (KeyValue<Pair<ObjectID, int>, uint64_t> &E : physics_2d_shape_touchover) {
+		if (!p_clean_all_frames && E.value == p_frame_reference) {
+			continue;
+		}
+
+		Object *o = ObjectDB::get_instance(E.key.first);
+		if (o) {
+			CollisionObject2D *co = Object::cast_to<CollisionObject2D>(o);
+			if (co && co->is_inside_tree()) {
+				if (p_clean_all_frames && p_paused_only && co->can_process()) {
+					continue;
+				}
+				shapes_to_touch_exit.push_back(E.key);
+			}
+		}
+		shapes_to_erase.push_back(E.key);
+	}
+
+	while (shapes_to_erase.size()) {
+		physics_2d_shape_touchover.erase(shapes_to_erase.front()->get());
+		shapes_to_erase.pop_front();
+	}
+
+	while (to_touch_exit.size()) {
+		Object *o = ObjectDB::get_instance(to_touch_exit.front()->get());
+		CollisionObject2D *co = Object::cast_to<CollisionObject2D>(o);
+		co->_touch_exit();
+		to_touch_exit.pop_front();
+	}
+
+	while (shapes_to_touch_exit.size()) {
+		Pair<ObjectID, int> e = shapes_to_touch_exit.front()->get();
+		Object *o = ObjectDB::get_instance(e.first);
+		CollisionObject2D *co = Object::cast_to<CollisionObject2D>(o);
+		co->_touch_shape_exit(e.second);
+		shapes_to_touch_exit.pop_front();
+	}
+}
 #endif // PHYSICS_2D_DISABLED
 
 AudioListener2D *Viewport::get_audio_listener_2d() const {
@@ -5089,6 +5446,9 @@ void Viewport::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("notify_mouse_entered"), &Viewport::notify_mouse_entered);
 	ClassDB::bind_method(D_METHOD("notify_mouse_exited"), &Viewport::notify_mouse_exited);
 
+	ClassDB::bind_method(D_METHOD("notify_touch_entered"), &Viewport::notify_touch_entered);
+	ClassDB::bind_method(D_METHOD("notify_touch_exited"), &Viewport::notify_touch_exited);
+
 	ClassDB::bind_method(D_METHOD("get_mouse_position"), &Viewport::get_mouse_position);
 	ClassDB::bind_method(D_METHOD("warp_mouse", "position"), &Viewport::warp_mouse);
 	ClassDB::bind_method(D_METHOD("update_mouse_cursor_state"), &Viewport::update_mouse_cursor_state);
@@ -5660,3 +6020,5 @@ void SubViewport::_validate_property(PropertyInfo &p_property) const {
 SubViewport::SubViewport() {
 	RS::get_singleton()->viewport_set_size(get_viewport_rid(), get_size().width, get_size().height);
 }
+
+#pragma endregion

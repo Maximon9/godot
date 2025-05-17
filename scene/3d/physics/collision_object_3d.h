@@ -113,6 +113,9 @@ protected:
 	virtual void _mouse_enter();
 	virtual void _mouse_exit();
 
+	virtual void _touch_enter();
+	virtual void _touch_exit();
+
 	void set_body_mode(PhysicsServer3D::BodyMode p_mode);
 
 	virtual void _space_changed(const RID &p_new_space);
@@ -121,8 +124,12 @@ protected:
 	bool is_only_update_transform_changes_enabled() const;
 
 	GDVIRTUAL5(_input_event, Camera3D *, Ref<InputEvent>, Vector3, Vector3, int)
+
 	GDVIRTUAL0(_mouse_enter)
 	GDVIRTUAL0(_mouse_exit)
+
+	GDVIRTUAL0(_touch_enter)
+	GDVIRTUAL0(_touch_exit)
 public:
 	void set_collision_layer(uint32_t p_layer);
 	uint32_t get_collision_layer() const;
