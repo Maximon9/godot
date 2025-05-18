@@ -38,11 +38,28 @@ class ButtonGroup;
 class BaseButton : public Control {
 	GDCLASS(BaseButton, Control);
 
+#pragma region Enums
+
 public:
 	enum ActionMode {
 		ACTION_MODE_BUTTON_PRESS,
 		ACTION_MODE_BUTTON_RELEASE,
 	};
+	enum DrawMode {
+		DRAW_NORMAL,
+		DRAW_PRESSED,
+		DRAW_HOVER,
+		DRAW_DISABLED,
+		DRAW_HOVER_PRESSED,
+	};
+	enum ButtonOptions {
+		HOLD_OUTSIDE = 1 << 0,
+		PRESS_ON_EXIT = 1 << 1,
+		PRESS_DRAG = 1 << 2,
+		ALLOW_HOVER = 1 << 3,
+	};
+
+#pragma endregion
 
 private:
 	BitField<MouseButtonMask> button_mask = MouseButtonMask::LEFT;
@@ -62,10 +79,17 @@ private:
 		bool pressing_inside = false;
 		bool pressed_down_with_focus = false;
 		bool disabled = false;
-
 	} status;
 
+	DrawMode draw_mode = DRAW_NORMAL;
+
+	int touch_index = -1;
+
+	bool maintain_touch_index = false;
+
 	Ref<ButtonGroup> button_group;
+
+	DrawMode run_draw_mode() const;
 
 	void _unpress_group();
 	void _pressed();
@@ -92,15 +116,13 @@ protected:
 	GDVIRTUAL1(_toggled, bool)
 
 public:
-	enum DrawMode {
-		DRAW_NORMAL,
-		DRAW_PRESSED,
-		DRAW_HOVER,
-		DRAW_DISABLED,
-		DRAW_HOVER_PRESSED,
-	};
-
 	DrawMode get_draw_mode() const;
+
+	void set_touch_index(int p_index);
+	int get_touch_index() const;
+
+	void set_maintain_touch_index(bool p_on);
+	bool get_maintain_touch_index() const;
 
 	/* Signals */
 

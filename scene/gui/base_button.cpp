@@ -34,6 +34,19 @@
 #include "scene/gui/label.h"
 #include "scene/main/window.h"
 
+BaseButton::DrawMode BaseButton::run_draw_mode() const {
+	switch (get_draw_mode()) {
+		case DRAW_NORMAL:
+			break;
+		case DRAW_PRESSED:
+			break;
+		case DRAW_HOVER:
+			break;
+		case DRAW_HOVER_PRESSED:
+			break;
+	}
+}
+
 void BaseButton::_unpress_group() {
 	if (button_group.is_null()) {
 		return;
@@ -57,6 +70,7 @@ void BaseButton::gui_input(const Ref<InputEvent> &p_event) {
 	ERR_FAIL_COND(p_event.is_null());
 
 	if (status.disabled) { // no interaction with disabled button
+		// run_draw_mode();
 		return;
 	}
 
@@ -82,6 +96,17 @@ void BaseButton::gui_input(const Ref<InputEvent> &p_event) {
 			}
 		}
 	}
+
+	// Ref<InputEventScreenDrag> touch_drag = p_event;
+	// if (touch_drag.is_valid()) {
+	// 	if (status.press_attempt) {
+	// 		bool last_press_inside = status.pressing_inside;
+	// 		status.pressing_inside = has_point(mouse_motion->get_position());
+	// 		if (last_press_inside != status.pressing_inside) {
+	// 			queue_redraw();
+	// 		}
+	// 	}
+	// }
 }
 
 void BaseButton::_accessibility_action_click(const Variant &p_data) {
@@ -318,38 +343,57 @@ bool BaseButton::is_hovered() const {
 }
 
 BaseButton::DrawMode BaseButton::get_draw_mode() const {
-	if (status.disabled) {
-		return DRAW_DISABLED;
+	// if (status.disabled) {
+	// 	return DRAW_DISABLED;
+	// }
+
+	// if (in_shortcut_feedback) {
+	// 	return DRAW_HOVER_PRESSED;
+	// }
+
+	// if (!status.press_attempt && status.hovering) {
+	// 	if (status.pressed) {
+	// 		return DRAW_HOVER_PRESSED;
+	// 	}
+
+	// 	return DRAW_HOVER;
+	// } else {
+	// 	// Determine if pressed or not.
+	// 	bool pressing;
+	// 	if (status.press_attempt) {
+	// 		pressing = (status.pressing_inside || keep_pressed_outside);
+	// 		if (status.pressed) {
+	// 			pressing = !pressing;
+	// 		}
+	// 	} else {
+	// 		pressing = status.pressed;
+	// 	}
+
+	// 	if (pressing) {
+	// 		return DRAW_PRESSED;
+	// 	} else {
+	// 		return DRAW_NORMAL;
+	// 	}
+	// }
+	return draw_mode;
+}
+
+void BaseButton::set_touch_index(int p_index) {
+	if (touch_index != p_index) {
+		touch_index = p_index;
 	}
+}
+int BaseButton::get_touch_index() const {
+	return touch_index;
+}
 
-	if (in_shortcut_feedback) {
-		return DRAW_HOVER_PRESSED;
+void BaseButton::set_maintain_touch_index(bool p_on) {
+	if (maintain_touch_index != p_on) {
+		maintain_touch_index = p_on;
 	}
-
-	if (!status.press_attempt && status.hovering) {
-		if (status.pressed) {
-			return DRAW_HOVER_PRESSED;
-		}
-
-		return DRAW_HOVER;
-	} else {
-		// Determine if pressed or not.
-		bool pressing;
-		if (status.press_attempt) {
-			pressing = (status.pressing_inside || keep_pressed_outside);
-			if (status.pressed) {
-				pressing = !pressing;
-			}
-		} else {
-			pressing = status.pressed;
-		}
-
-		if (pressing) {
-			return DRAW_PRESSED;
-		} else {
-			return DRAW_NORMAL;
-		}
-	}
+}
+bool BaseButton::get_maintain_touch_index() const {
+	return maintain_touch_index;
 }
 
 void BaseButton::set_toggle_mode(bool p_on) {
@@ -529,8 +573,16 @@ void BaseButton::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_pressed"), &BaseButton::is_pressed);
 	ClassDB::bind_method(D_METHOD("set_pressed_no_signal", "pressed"), &BaseButton::set_pressed_no_signal);
 	ClassDB::bind_method(D_METHOD("is_hovered"), &BaseButton::is_hovered);
+
+	ClassDB::bind_method(D_METHOD("set_touch_index", "index"), &BaseButton::set_touch_index);
+	ClassDB::bind_method(D_METHOD("get_touch_index"), &BaseButton::get_touch_index);
+
+	ClassDB::bind_method(D_METHOD("set_maintain_touch_index", "enabled"), &BaseButton::set_maintain_touch_index);
+	ClassDB::bind_method(D_METHOD("get_maintain_touch_index"), &BaseButton::get_maintain_touch_index);
+
 	ClassDB::bind_method(D_METHOD("set_toggle_mode", "enabled"), &BaseButton::set_toggle_mode);
 	ClassDB::bind_method(D_METHOD("is_toggle_mode"), &BaseButton::is_toggle_mode);
+
 	ClassDB::bind_method(D_METHOD("set_shortcut_in_tooltip", "enabled"), &BaseButton::set_shortcut_in_tooltip);
 	ClassDB::bind_method(D_METHOD("is_shortcut_in_tooltip_enabled"), &BaseButton::is_shortcut_in_tooltip_enabled);
 	ClassDB::bind_method(D_METHOD("set_disabled", "disabled"), &BaseButton::set_disabled);
@@ -562,10 +614,17 @@ void BaseButton::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "disabled"), "set_disabled", "is_disabled");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "toggle_mode"), "set_toggle_mode", "is_toggle_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "button_pressed"), "set_pressed", "is_pressed");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "action_mode", PROPERTY_HINT_ENUM, "Button Press,Button Release"), "set_action_mode", "get_action_mode");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "button_mask", PROPERTY_HINT_FLAGS, "Mouse Left, Mouse Right, Mouse Middle"), "set_button_mask", "get_button_mask");
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "keep_pressed_outside"), "set_keep_pressed_outside", "is_keep_pressed_outside");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "button_group", PROPERTY_HINT_RESOURCE_TYPE, "ButtonGroup"), "set_button_group", "get_button_group");
+
+	ADD_GROUP("Input", "");
+	ADD_SUBGROUP("Mouse", "mouse_");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "mouse_action_mode", PROPERTY_HINT_ENUM, "Button Press,Button Release"), "set_action_mode", "get_action_mode");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "mouse_button_mask", PROPERTY_HINT_FLAGS, "Mouse Left,Mouse Right,Mouse Middle"), "set_button_mask", "get_button_mask");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "mouse_options", PROPERTY_HINT_FLAGS, "Hold Outside,Press on Exit,Press Drag,Allow Hover"), "set_mouse_options", "get_mouse_options");
+
+	ADD_SUBGROUP("Touch", "touch_");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "touch_action_mode", PROPERTY_HINT_ENUM, "Button Press,Button Release"), "set_action_mode", "get_action_mode");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "touch_options", PROPERTY_HINT_FLAGS, "Hold Outside,Press on Exit,Press Drag,Allow Hover"), "set_touch_options", "get_touch_options");
 
 	ADD_GROUP("Shortcut", "");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "shortcut", PROPERTY_HINT_RESOURCE_TYPE, "Shortcut"), "set_shortcut", "get_shortcut");
