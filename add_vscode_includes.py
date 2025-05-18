@@ -52,11 +52,15 @@ def grab_all_header_folders(
                 if has_ex_file:
                     continue
 
-                workspace_path_str = (
-                    "${workspaceFolder}\\"
-                    + f"{path_str}\\"
-                    + ("*" if include_all else "**")
-                )
+                if samefile(path_str, "platform"):
+                    workspace_path_str = "${workspaceFolder}\\" + f"{path_str}\\" + "*"
+                    grab_all_header_folders(entry, exclude, include_paths, include_all)
+                else:
+                    workspace_path_str = (
+                        "${workspaceFolder}\\"
+                        + f"{path_str}\\"
+                        + ("*" if include_all else "**")
+                    )
 
                 include_paths.append(workspace_path_str)
             elif include_all == False:

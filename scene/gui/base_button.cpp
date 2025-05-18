@@ -34,8 +34,8 @@
 #include "scene/gui/label.h"
 #include "scene/main/window.h"
 
-BaseButton::DrawMode BaseButton::run_draw_mode() const {
-	switch (get_draw_mode()) {
+void BaseButton::run_draw_mode() const {
+	switch (draw_mode) {
 		case DRAW_NORMAL:
 			break;
 		case DRAW_PRESSED:

@@ -89,7 +89,7 @@ private:
 
 	Ref<ButtonGroup> button_group;
 
-	DrawMode run_draw_mode() const;
+	void run_draw_mode() const;
 
 	void _unpress_group();
 	void _pressed();
