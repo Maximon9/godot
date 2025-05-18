@@ -427,10 +427,6 @@ void BaseButton::_shortcut_feedback_timeout() {
 	queue_redraw();
 }
 
-BaseButton::LayoutPreset BaseButton::_get_default_anchors_preset() const {
-	return BaseButton::LayoutPreset::PRESET_FULL_RECT;
-}
-
 void BaseButton::shortcut_input(const Ref<InputEvent> &p_event) {
 	ERR_FAIL_COND(p_event.is_null());
 
