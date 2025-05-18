@@ -34,6 +34,12 @@
 #include "scene/gui/label.h"
 #include "scene/main/window.h"
 
+void BaseButton::set_draw_mode(BaseButton::DrawMode p_mode) {
+	if (draw_mode != p_mode) {
+		draw_mode = p_mode;
+	}
+}
+
 void BaseButton::run_draw_mode() const {
 	switch (draw_mode) {
 		case DRAW_NORMAL:

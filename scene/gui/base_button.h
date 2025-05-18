@@ -89,6 +89,7 @@ private:
 
 	Ref<ButtonGroup> button_group;
 
+	void set_draw_mode(DrawMode p_mode);
 	void run_draw_mode() const;
 
 	void _unpress_group();
