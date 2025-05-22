@@ -538,7 +538,6 @@ public:
 	void canvas_parent_mark_dirty(Node *p_node);
 	void canvas_item_bring_to_top_changed();
 	void canvas_item_bring_to_bottom_changed();
-	// void canvas_item_top_level_changed();
 
 	uint64_t get_processed_events_count() const { return event_count; }
 

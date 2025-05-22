@@ -1,9 +1,20 @@
 # from glob import glob
 from json import dumps, loads
 from os import environ
-from pathlib import Path
-from typing import TypedDict, List, NotRequired
+from pathlib import Path as LibPath
+from typing import TypedDict, Dict, List, NotRequired, Union, Optional
 from re import search
+from generate_folder_string_literal_types import contains_header_files
+
+Excludes = List[str]
+
+
+class ExludesAndExludeMap(TypedDict):
+    exclude_map: NotRequired["ExcludeMap"]
+    excludes: NotRequired[Excludes]
+
+
+ExcludeMap = Dict[str, Union[Excludes, "ExcludeMap", ExludesAndExludeMap]]
 
 
 class C_CppConfig(TypedDict):
@@ -29,31 +40,40 @@ def is_running_in_vscode_terminal():
     return "TERM_PROGRAM" in environ and environ["TERM_PROGRAM"] == "vscode"
 
 
-def contains_header_files(dir: Path):
-    return any(
-        file.suffix in (".h", ".hpp") for file in dir.iterdir() if file.is_file()
-    )
-
-
 def grab_all_header_folders(
-    path: Path,
-    exclude: List[str],
+    path: LibPath,
+    exclude_map: ExcludeMap,
     include_paths: List[str],
     include_files: bool,
     include_all_folders: bool,
+    parent_dir: Union[str, None] = None,
 ):
     for entry in path.iterdir():
         if entry.is_dir():
+            new_exlude_map: ExcludeMap = exclude_map
+            if parent_dir != None:
+                if parent_dir in exclude_map:
+                    exclude_data = exclude_map[parent_dir]
+
+                    exludes: Optional[Excludes] = None
+
+                    if isinstance(exclude_data, ExludesAndExludeMap):
+                        new_exlude_map = exclude_data["exclude_map"]
+                        exludes = exclude_data["excludes"]
+                    elif isinstance(exclude_data, ExcludeMap):
+                        new_exlude_map = exclude_data
+                    else:
+                        exludes = exclude_data
+
+                    has_ex_file: bool = False
+                    for ex_path in exludes:
+                        if entry.samefile(ex_path):
+                            has_ex_file = True
+                            break
+
+                    if has_ex_file:
+                        continue
             if contains_header_files(entry):
-                has_ex_file: bool = False
-                for ex_path in exclude:
-                    if entry.samefile(ex_path):
-                        has_ex_file = True
-                        break
-
-                if has_ex_file:
-                    continue
-
                 if include_files:
                     for file_entry in entry.iterdir():
                         if (
@@ -76,24 +96,34 @@ def grab_all_header_folders(
                     include_paths.append(workspace_path_str)
             elif include_all_folders == False and include_files == False:
                 grab_all_header_folders(
-                    entry, exclude, include_paths, include_files, include_all_folders
+                    entry,
+                    new_exlude_map,
+                    include_paths,
+                    include_files,
+                    include_all_folders,
+                    parent_dir=str(path),
                 )
             if include_all_folders or include_files:
                 grab_all_header_folders(
-                    entry, exclude, include_paths, include_files, include_all_folders
+                    entry,
+                    new_exlude_map,
+                    include_paths,
+                    include_files,
+                    include_all_folders,
+                    parent_dir=str(path),
                 )
 
 
-def add_vscode_includes(
+def generate_vscode_includes(
     platform: str,
-    exclude: List[str] = [],
+    exclude_map: ExcludeMap = {},
     include_files: bool = False,
     include_all_folders: bool = False,
 ) -> None:
     if is_running_in_vscode_terminal() == False:
         return
 
-    c_cpp_properties_path_obj: Path = Path(c_cpp_properties_path)
+    c_cpp_properties_path_obj: LibPath = LibPath(c_cpp_properties_path)
     if c_cpp_properties_path_obj.exists() == False:
         c_cpp_properties_path_obj.parent.mkdir(parents=True, exist_ok=True)
         c_cpp_properties_path_obj.touch()
@@ -137,10 +167,15 @@ def add_vscode_includes(
 
     platform_path_to_include: str = f"{platform_dir_path}\\" + platform
 
-    platform_path = Path(platform_dir_path)
+    platform_path = LibPath(platform_dir_path)
 
     if platform_path.exists() == False:
         return
+
+    if not platform_dir_path in exclude_map:
+        exclude_map[platform_dir_path] = []
+
+    platform_exludes = exclude_map[platform_dir_path]
 
     platform_paths: set[str] = set()
 
@@ -150,13 +185,13 @@ def add_vscode_includes(
 
     platform_paths.remove(platform_path_to_include)
 
-    exclude += platform_paths
+    platform_exludes += platform_paths
 
     include_paths.append(
         "${workspaceFolder}",
     )
     grab_all_header_folders(
-        Path("."), exclude, include_paths, include_files, include_all_folders
+        LibPath("."), exclude_map, include_paths, include_files, include_all_folders
     )
 
     c_cpp_properties_path_obj.write_text(dumps(c_cpp_json_object, indent=4))

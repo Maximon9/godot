@@ -8,7 +8,7 @@
 		Any [CanvasItem] can draw. For this, [method queue_redraw] is called by the engine, then [constant NOTIFICATION_DRAW] will be received on idle time to request a redraw. Because of this, canvas items don't need to be redrawn on every frame, improving the performance significantly. Several functions for drawing on the [CanvasItem] are provided (see [code]draw_*[/code] functions). However, they can only be used inside [method _draw], its corresponding [method Object._notification] or methods connected to the [signal draw] signal.
 		Canvas items are drawn in tree order on their canvas layer. By default, children are on top of their parents, so a root [CanvasItem] will be drawn behind everything. This behavior can be changed on a per-item basis.
 		A [CanvasItem] can be hidden, which will also hide its children. By adjusting various other properties of a [CanvasItem], you can also modulate its color (via [member modulate] or [member self_modulate]), change its Z-index, blend mode, and more.
-		Note that properties like transform, modulation, and visibility are only propagated to [i]direct[/i] [CanvasItem] child nodes. If there is a non-[CanvasItem] node in between, like [Node] or [AnimationPlayer], the [CanvasItem] nodes below will have an independent position and [member modulate] chain. See also [member top_level].
+		Note that properties like transform, modulation, and visibility are only propagated to [i]direct[/i] [CanvasItem] child nodes. If there is a non-[CanvasItem] node in between, like [Node] or [AnimationPlayer], the [CanvasItem] nodes below will have an independent position and [member modulate] chain. See also [member bring_to_top].
 	</description>
 	<tutorials>
 		<link title="Viewport and canvas transforms">$DOCS_URL/tutorials/2d/2d_transforms.html</link>
@@ -460,7 +460,7 @@
 		<method name="get_global_transform" qualifiers="const">
 			<return type="Transform2D" />
 			<description>
-				Returns the global transform matrix of this item, i.e. the combined transform up to the topmost [CanvasItem] node. The topmost item is a [CanvasItem] that either has no parent, has non-[CanvasItem] parent or it has [member top_level] enabled.
+				Returns the global transform matrix of this item, i.e. the combined transform up to the topmost [CanvasItem] node. The topmost item is a [CanvasItem] that either has no parent, has non-[CanvasItem] parent or it has [member bring_to_top] enabled.
 			</description>
 		</method>
 		<method name="get_global_transform_with_canvas" qualifiers="const">
@@ -646,8 +646,8 @@
 		<member name="texture_repeat" type="int" setter="set_texture_repeat" getter="get_texture_repeat" enum="CanvasItem.TextureRepeat" default="0">
 			The repeating mode used to render this [CanvasItem]'s texture(s).
 		</member>
-		<member name="top_level" type="bool" setter="set_as_top_level" getter="is_set_as_top_level" default="false">
-			If [code]true[/code], this [CanvasItem] will [i]not[/i] inherit its transform from parent [CanvasItem]s. Its draw order will also be changed to make it draw on top of other [CanvasItem]s that do not have [member top_level] set to [code]true[/code]. The [CanvasItem] will effectively act as if it was placed as a child of a bare [Node].
+		<member name="bring_to_top" type="bool" setter="set_as_bring_to_top" getter="is_set_as_bring_to_top" default="false">
+			If [code]true[/code], this [CanvasItem] will [i]not[/i] inherit its transform from parent [CanvasItem]s. Its draw order will also be changed to make it draw on top of other [CanvasItem]s that do not have [member bring_to_top] set to [code]true[/code]. The [CanvasItem] will effectively act as if it was placed as a child of a bare [Node].
 		</member>
 		<member name="use_parent_material" type="bool" setter="set_use_parent_material" getter="get_use_parent_material" default="false">
 			If [code]true[/code], the parent [CanvasItem]'s [member material] is used as this node's material.
