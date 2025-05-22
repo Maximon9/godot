@@ -186,7 +186,7 @@ public:
 
 VARIANT_ENUM_CAST(BaseButton::DrawMode)
 VARIANT_ENUM_CAST(BaseButton::ActionMode)
-VARIANT_ENUM_CAST(BaseButton::ButtonOptions)
+VARIANT_BITFIELD_CAST(BaseButton::ButtonOptions)
 
 class ButtonGroup : public Resource {
 	GDCLASS(ButtonGroup, Resource);
