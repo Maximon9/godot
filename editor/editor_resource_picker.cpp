@@ -1131,7 +1131,7 @@ EditorResourcePicker::EditorResourcePicker(bool p_hide_assign_button_controls) {
 	edit_button = memnew(Button);
 	edit_button->set_flat(false);
 	edit_button->set_toggle_mode(true);
-	edit_button->set_action_mode(BaseButton::ACTION_MODE_BUTTON_PRESS);
+	edit_button->set_mouse_action_mode(BaseButton::ACTION_MODE_BUTTON_PRESS);
 	edit_button->set_accessibility_name(TTRC("Edit"));
 	add_child(edit_button);
 	edit_button->connect(SceneStringName(pressed), callable_mp(this, &EditorResourcePicker::_update_menu));

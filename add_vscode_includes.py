@@ -153,7 +153,7 @@ def add_vscode_includes(
     exclude += platform_paths
 
     include_paths.append(
-        "${workspaceFolder}\\*",
+        "${workspaceFolder}\\**",
     )
     grab_all_header_folders(
         Path("."), exclude, include_paths, include_files, include_all_folders

@@ -53,10 +53,10 @@ public:
 		DRAW_HOVER_PRESSED,
 	};
 	enum ButtonOptions {
-		HOLD_OUTSIDE = 1 << 0,
-		PRESS_ON_EXIT = 1 << 1,
-		PRESS_DRAG = 1 << 2,
-		ALLOW_HOVER = 1 << 3,
+		BUTTON_OPTIONS_HOLD_OUTSIDE = 1 << 0,
+		BUTTON_OPTIONS_PRESS_ON_EXIT = 1 << 1,
+		BUTTON_OPTIONS_PRESS_DRAG = 1 << 2,
+		BUTTON_OPTIONS_ALLOW_HOVER = 1 << 3,
 	};
 
 #pragma endregion
@@ -65,13 +65,7 @@ private:
 	bool was_mouse_pressed = false;
 	BitField<MouseButtonMask> button_mask = MouseButtonMask::LEFT;
 	ActionMode mouse_action_mode = ACTION_MODE_BUTTON_RELEASE;
-
-	bool toggle_mode = false;
-
-	bool shortcut_in_tooltip = true;
-	bool shortcut_feedback = true;
-	Ref<Shortcut> shortcut;
-	ObjectID shortcut_context;
+	BitField<ButtonOptions> mouse_options = BUTTON_OPTIONS_HOLD_OUTSIDE | BUTTON_OPTIONS_ALLOW_HOVER;
 
 	bool was_touch_pressed = false;
 	ActionMode touch_action_mode = ACTION_MODE_BUTTON_RELEASE;
@@ -79,6 +73,14 @@ private:
 	int touch_index = -1;
 
 	bool maintain_touch_index = false;
+	BitField<ButtonOptions> touch_options = BUTTON_OPTIONS_HOLD_OUTSIDE | BUTTON_OPTIONS_ALLOW_HOVER;
+
+	bool toggle_mode = false;
+
+	bool shortcut_in_tooltip = true;
+	bool shortcut_feedback = true;
+	Ref<Shortcut> shortcut;
+	ObjectID shortcut_context;
 
 	struct Status {
 		bool pressed = false;
@@ -123,6 +125,12 @@ protected:
 
 public:
 	DrawMode get_draw_mode() const;
+
+	void set_mouse_options(BitField<ButtonOptions> p_flags);
+	BitField<ButtonOptions> get_mouse_options() const;
+
+	void set_touch_options(BitField<ButtonOptions> p_flags);
+	BitField<ButtonOptions> get_touch_options() const;
 
 	void set_touch_index(int p_index);
 	int get_touch_index() const;

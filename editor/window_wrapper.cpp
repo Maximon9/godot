@@ -491,7 +491,7 @@ ScreenSelect::ScreenSelect() {
 	set_flat(true);
 	set_toggle_mode(true);
 	set_focus_mode(FOCUS_NONE);
-	set_action_mode(ACTION_MODE_BUTTON_PRESS);
+	set_mouse_action_mode(ACTION_MODE_BUTTON_PRESS);
 
 	if (!EditorNode::get_singleton()->is_multi_window_enabled()) {
 		set_disabled(true);

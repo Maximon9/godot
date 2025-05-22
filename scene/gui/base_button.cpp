@@ -384,6 +384,26 @@ BaseButton::DrawMode BaseButton::get_draw_mode() const {
 	return draw_mode;
 }
 
+void BaseButton::set_mouse_options(BitField<ButtonOptions> p_flags) {
+	if (mouse_options == p_flags) {
+		return;
+	}
+	mouse_options = p_flags;
+}
+BitField<BaseButton::ButtonOptions> BaseButton::get_mouse_options() const {
+	return mouse_options;
+}
+
+void BaseButton::set_touch_options(BitField<ButtonOptions> p_flags) {
+	if (touch_options == p_flags) {
+		return;
+	}
+	touch_options = p_flags;
+}
+BitField<BaseButton::ButtonOptions> BaseButton::get_touch_options() const {
+	return touch_options;
+}
+
 void BaseButton::set_touch_index(int p_index) {
 	if (touch_index != p_index) {
 		touch_index = p_index;
