@@ -355,8 +355,8 @@ private:
 	void _update_minimum_size();
 	void _size_changed();
 
-	void _top_level_changed() override {} // Controls don't need to do anything, only other CanvasItems.
-	void _top_level_changed_on_parent() override;
+	void _bring_to_top_changed() override {} // Controls don't need to do anything, only other CanvasItems.
+	void _bring_to_top_changed_on_parent() override;
 
 	void _clear_size_warning();
 

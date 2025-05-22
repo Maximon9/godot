@@ -142,7 +142,7 @@ void Container::queue_sort() {
 
 Control *Container::as_sortable_control(Node *p_node, SortableVisibilityMode p_visibility_mode) const {
 	Control *c = Object::cast_to<Control>(p_node);
-	if (!c || c->is_set_as_top_level()) {
+	if (!c || c->brought_to_top()) {
 		return nullptr;
 	}
 	if (p_visibility_mode == SortableVisibilityMode::VISIBLE && !c->is_visible()) {

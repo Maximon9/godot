@@ -107,7 +107,7 @@ private:
 	bool notify_transform = false;
 	bool hide_clip_children = false;
 
-	bool bring_to_bottom = false;
+	bool independent_transform = false;
 
 	ClipChildrenMode clip_children_mode = CLIP_CHILDREN_DISABLED;
 
@@ -298,6 +298,11 @@ public:
 
 	virtual void set_y_sort_enabled(bool p_enabled);
 	virtual bool is_y_sort_enabled() const;
+
+	/* POSITIONING */
+
+	void set_independent_transform(bool p_enabled);
+	bool is_independent_transform() const;
 
 	/* DRAWING API */
 

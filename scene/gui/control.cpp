@@ -751,7 +751,7 @@ Transform2D Control::get_transform() const {
 	return xform;
 }
 
-void Control::_top_level_changed_on_parent() {
+void Control::_bring_to_top_changed_on_parent() {
 	// Update root control status.
 	_notification(NOTIFICATION_EXIT_CANVAS);
 	_notification(NOTIFICATION_ENTER_CANVAS);
@@ -1673,7 +1673,7 @@ void Control::update_minimum_size() {
 	Control *invalidate = this;
 	while (invalidate && invalidate->data.minimum_size_valid) {
 		invalidate->data.minimum_size_valid = false;
-		if (invalidate->is_set_as_top_level()) {
+		if (invalidate->brought_to_top()) {
 			break; // Do not go further up.
 		}
 
@@ -2453,7 +2453,7 @@ void Control::release_focus() {
 }
 
 static Control *_next_control(Control *p_from) {
-	if (p_from->is_set_as_top_level()) {
+	if (p_from->brought_to_top()) {
 		return nullptr; // Can't go above.
 	}
 
@@ -2467,7 +2467,7 @@ static Control *_next_control(Control *p_from) {
 	ERR_FAIL_INDEX_V(next, parent->get_child_count(), nullptr);
 	for (int i = (next + 1); i < parent->get_child_count(); i++) {
 		Control *c = Object::cast_to<Control>(parent->get_child(i));
-		if (!c || !c->is_visible_in_tree() || c->is_set_as_top_level()) {
+		if (!c || !c->is_visible_in_tree() || c->brought_to_top()) {
 			continue;
 		}
 
@@ -2505,7 +2505,7 @@ Control *Control::find_next_valid_focus() const {
 
 		for (int i = 0; i < from->get_child_count(); i++) {
 			Control *c = Object::cast_to<Control>(from->get_child(i));
-			if (!c || !c->is_visible_in_tree() || c->is_set_as_top_level()) {
+			if (!c || !c->is_visible_in_tree() || c->brought_to_top()) {
 				continue;
 			}
 
@@ -2519,7 +2519,7 @@ Control *Control::find_next_valid_focus() const {
 				next_child = const_cast<Control *>(this);
 
 				while (next_child) {
-					if (next_child->is_set_as_top_level()) {
+					if (next_child->brought_to_top()) {
 						break;
 					}
 
@@ -2539,7 +2539,7 @@ Control *Control::find_next_valid_focus() const {
 					for (int i = 1; i < win->get_child_count() + 1; i++) {
 						int next = Math::wrapi(window_next + i, 0, win->get_child_count());
 						Control *c = Object::cast_to<Control>(win->get_child(next));
-						if (!c || !c->is_visible_in_tree() || c->is_set_as_top_level()) {
+						if (!c || !c->is_visible_in_tree() || c->brought_to_top()) {
 							continue;
 						}
 						window_next = next;
@@ -2571,7 +2571,7 @@ Control *Control::find_next_valid_focus() const {
 static Control *_prev_control(Control *p_from) {
 	for (int i = p_from->get_child_count() - 1; i >= 0; i--) {
 		Control *c = Object::cast_to<Control>(p_from->get_child(i));
-		if (!c || !c->is_visible_in_tree() || c->is_set_as_top_level()) {
+		if (!c || !c->is_visible_in_tree() || c->brought_to_top()) {
 			continue;
 		}
 
@@ -2607,7 +2607,7 @@ Control *Control::find_prev_valid_focus() const {
 
 		Control *prev_child = nullptr;
 
-		if (from->is_set_as_top_level() || !from->data.parent_control) {
+		if (from->brought_to_top() || !from->data.parent_control) {
 			// Find last of the children.
 
 			Window *win = from->data.parent_window;
@@ -2620,7 +2620,7 @@ Control *Control::find_prev_valid_focus() const {
 				for (int i = 1; i < win->get_child_count() + 1; i++) {
 					int prev = Math::wrapi(window_prev - i, 0, win->get_child_count());
 					Control *c = Object::cast_to<Control>(win->get_child(prev));
-					if (!c || !c->is_visible_in_tree() || c->is_set_as_top_level()) {
+					if (!c || !c->is_visible_in_tree() || c->brought_to_top()) {
 						continue;
 					}
 					window_prev = prev;
@@ -2637,7 +2637,7 @@ Control *Control::find_prev_valid_focus() const {
 			for (int i = (from->get_index() - 1); i >= 0; i--) {
 				Control *c = Object::cast_to<Control>(from->get_parent()->get_child(i));
 
-				if (!c || !c->is_visible_in_tree() || c->is_set_as_top_level()) {
+				if (!c || !c->is_visible_in_tree() || c->brought_to_top()) {
 					continue;
 				}
 
@@ -3879,7 +3879,7 @@ void Control::_notification(int p_notification) {
 			CanvasItem *node = this;
 			bool has_parent_control = false;
 
-			while (!node->is_set_as_top_level()) {
+			while (!node->brought_to_top()) {
 				CanvasItem *parent = Object::cast_to<CanvasItem>(node->get_parent());
 				if (!parent) {
 					break;
@@ -3897,7 +3897,7 @@ void Control::_notification(int p_notification) {
 			if (has_parent_control) {
 				// Do nothing, has a parent control.
 			} else {
-				// Is a regular root control or top_level.
+				// Is a regular root control or bring_to_top.
 				Viewport *viewport = get_viewport();
 				ERR_FAIL_NULL(viewport);
 				data.RI = viewport->_gui_add_root_control(this);

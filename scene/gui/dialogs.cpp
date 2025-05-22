@@ -250,7 +250,7 @@ void AcceptDialog::_update_child_rects() {
 		if (!c) {
 			continue;
 		}
-		if (c == buttons_hbox || c == bg_panel || c->is_set_as_top_level()) {
+		if (c == buttons_hbox || c == bg_panel || c->brought_to_top()) {
 			continue;
 		}
 
@@ -290,7 +290,7 @@ Size2 AcceptDialog::_get_contents_minimum_size() const {
 
 		// Buttons will be included afterwards.
 		// The panel only displays the stylebox and doesn't contribute to the size.
-		if (c == buttons_hbox || c == bg_panel || c->is_set_as_top_level()) {
+		if (c == buttons_hbox || c == bg_panel || c->brought_to_top()) {
 			continue;
 		}
 

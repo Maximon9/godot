@@ -2309,7 +2309,7 @@ void RuntimeNodeSelect::_find_canvas_items_at_pos(const Point2 &p_pos, Node *p_n
 	CanvasItem *ci = Object::cast_to<CanvasItem>(p_node);
 	for (int i = p_node->get_child_count() - 1; i >= 0; i--) {
 		if (ci) {
-			if (!ci->is_set_as_top_level()) {
+			if (!ci->brought_to_top()) {
 				_find_canvas_items_at_pos(p_pos, p_node->get_child(i), r_items, p_parent_xform * ci->get_transform(), p_canvas_xform);
 			} else {
 				_find_canvas_items_at_pos(p_pos, p_node->get_child(i), r_items, ci->get_transform(), p_canvas_xform);
@@ -2325,7 +2325,7 @@ void RuntimeNodeSelect::_find_canvas_items_at_pos(const Point2 &p_pos, Node *p_n
 	}
 
 	Transform2D xform = p_canvas_xform;
-	if (!ci->is_set_as_top_level()) {
+	if (!ci->brought_to_top()) {
 		xform *= p_parent_xform;
 	}
 
@@ -2371,7 +2371,7 @@ void RuntimeNodeSelect::_find_canvas_items_at_rect(const Rect2 &p_rect, Node *p_
 	CanvasItem *ci = Object::cast_to<CanvasItem>(p_node);
 	for (int i = p_node->get_child_count() - 1; i >= 0; i--) {
 		if (ci) {
-			if (!ci->is_set_as_top_level()) {
+			if (!ci->brought_to_top()) {
 				_find_canvas_items_at_rect(p_rect, p_node->get_child(i), r_items, p_parent_xform * ci->get_transform(), p_canvas_xform);
 			} else {
 				_find_canvas_items_at_rect(p_rect, p_node->get_child(i), r_items, ci->get_transform(), p_canvas_xform);
@@ -2387,7 +2387,7 @@ void RuntimeNodeSelect::_find_canvas_items_at_rect(const Rect2 &p_rect, Node *p_
 	}
 
 	Transform2D xform = p_canvas_xform;
-	if (!ci->is_set_as_top_level()) {
+	if (!ci->brought_to_top()) {
 		xform *= p_parent_xform;
 	}
 

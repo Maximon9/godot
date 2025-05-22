@@ -60,7 +60,7 @@ void DockSplitContainer::_update_visibility() {
 	bool any_visible = false;
 	for (int i = 0; i < get_child_count(false); i++) {
 		Control *c = Object::cast_to<Control>(get_child(i, false));
-		if (!c || !c->is_visible() || c->is_set_as_top_level()) {
+		if (!c || !c->is_visible() || c->brought_to_top()) {
 			continue;
 		}
 		any_visible = c;
@@ -76,7 +76,7 @@ void DockSplitContainer::add_child_notify(Node *p_child) {
 	Control *child_control = nullptr;
 	for (int i = 0; i < get_child_count(false); i++) {
 		Control *c = Object::cast_to<Control>(get_child(i, false));
-		if (!c || c->is_set_as_top_level()) {
+		if (!c || c->brought_to_top()) {
 			continue;
 		}
 		if (p_child == c) {
@@ -98,7 +98,7 @@ void DockSplitContainer::remove_child_notify(Node *p_child) {
 	Control *child_control = nullptr;
 	for (int i = 0; i < get_child_count(false); i++) {
 		Control *c = Object::cast_to<Control>(get_child(i, false));
-		if (!c || c->is_set_as_top_level()) {
+		if (!c || c->brought_to_top()) {
 			continue;
 		}
 		if (p_child == c) {

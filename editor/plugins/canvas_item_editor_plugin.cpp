@@ -582,7 +582,7 @@ void CanvasItemEditor::_expand_encompassing_rect_using_children(Rect2 &r_rect, c
 	const CanvasItem *ci = Object::cast_to<CanvasItem>(p_node);
 
 	for (int i = p_node->get_child_count() - 1; i >= 0; i--) {
-		if (ci && !ci->is_set_as_top_level()) {
+		if (ci && !ci->brought_to_top()) {
 			_expand_encompassing_rect_using_children(r_rect, p_node->get_child(i), r_first, p_parent_xform * ci->get_transform(), p_canvas_xform);
 		} else {
 			const CanvasLayer *cl = Object::cast_to<CanvasLayer>(p_node);
@@ -592,7 +592,7 @@ void CanvasItemEditor::_expand_encompassing_rect_using_children(Rect2 &r_rect, c
 
 	if (ci && ci->is_visible_in_tree() && (include_locked_nodes || !_is_node_locked(ci))) {
 		Transform2D xform = p_canvas_xform;
-		if (!ci->is_set_as_top_level()) {
+		if (!ci->brought_to_top()) {
 			xform *= p_parent_xform;
 		}
 		xform *= ci->get_transform();
@@ -639,7 +639,7 @@ void CanvasItemEditor::_find_canvas_items_at_pos(const Point2 &p_pos, Node *p_no
 
 	for (int i = p_node->get_child_count() - 1; i >= 0; i--) {
 		if (ci) {
-			if (!ci->is_set_as_top_level()) {
+			if (!ci->brought_to_top()) {
 				_find_canvas_items_at_pos(p_pos, p_node->get_child(i), r_items, p_parent_xform * ci->get_transform(), xform);
 			} else {
 				_find_canvas_items_at_pos(p_pos, p_node->get_child(i), r_items, ci->get_transform(), xform);
@@ -650,7 +650,7 @@ void CanvasItemEditor::_find_canvas_items_at_pos(const Point2 &p_pos, Node *p_no
 	}
 
 	if (ci && ci->is_visible_in_tree()) {
-		if (!ci->is_set_as_top_level()) {
+		if (!ci->brought_to_top()) {
 			xform *= p_parent_xform;
 		}
 		xform = (xform * ci->get_transform()).affine_inverse();
@@ -743,7 +743,7 @@ void CanvasItemEditor::_find_canvas_items_in_rect(const Rect2 &p_rect, Node *p_n
 	if (!lock_children || !editable) {
 		for (int i = p_node->get_child_count() - 1; i >= 0; i--) {
 			if (ci) {
-				if (!ci->is_set_as_top_level()) {
+				if (!ci->brought_to_top()) {
 					_find_canvas_items_in_rect(p_rect, p_node->get_child(i), r_items, p_parent_xform * ci->get_transform(), xform);
 				} else {
 					_find_canvas_items_in_rect(p_rect, p_node->get_child(i), r_items, ci->get_transform(), xform);
@@ -756,7 +756,7 @@ void CanvasItemEditor::_find_canvas_items_in_rect(const Rect2 &p_rect, Node *p_n
 	}
 
 	if (ci && ci->is_visible_in_tree() && !locked && editable) {
-		if (!ci->is_set_as_top_level()) {
+		if (!ci->brought_to_top()) {
 			xform *= p_parent_xform;
 		}
 		xform *= ci->get_transform();
@@ -3871,7 +3871,7 @@ void CanvasItemEditor::_draw_invisible_nodes_positions(Node *p_node, const Trans
 	Transform2D parent_xform = p_parent_xform;
 	Transform2D canvas_xform = p_canvas_xform;
 
-	if (ci && !ci->is_set_as_top_level()) {
+	if (ci && !ci->brought_to_top()) {
 		parent_xform = parent_xform * ci->get_transform();
 	} else if (CanvasLayer *cl = Object::cast_to<CanvasLayer>(p_node)) {
 		parent_xform = Transform2D();
@@ -4006,7 +4006,7 @@ void CanvasItemEditor::_draw_locks_and_groups(Node *p_node, const Transform2D &p
 	Transform2D parent_xform = p_parent_xform;
 	Transform2D canvas_xform = p_canvas_xform;
 
-	if (ci && !ci->is_set_as_top_level()) {
+	if (ci && !ci->brought_to_top()) {
 		parent_xform = parent_xform * ci->get_transform();
 	} else if (CanvasLayer *cl = Object::cast_to<CanvasLayer>(p_node)) {
 		parent_xform = Transform2D();

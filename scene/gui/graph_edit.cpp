@@ -1414,7 +1414,7 @@ void GraphEdit::_top_connection_layer_input(const Ref<InputEvent> &p_ev) {
 }
 
 bool GraphEdit::_check_clickable_control(Control *p_control, const Vector2 &mpos, const Vector2 &p_offset) {
-	if (p_control->is_set_as_top_level() || !p_control->is_visible() || !p_control->is_inside_tree()) {
+	if (p_control->brought_to_top() || !p_control->is_visible() || !p_control->is_inside_tree()) {
 		return false;
 	}
 

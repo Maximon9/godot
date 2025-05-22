@@ -540,7 +540,7 @@ EditorToaster::EditorToaster() {
 
 	// VBox.
 	vbox_container = memnew(VBoxContainer);
-	vbox_container->set_as_top_level(true);
+	vbox_container->set_bring_to_top(true);
 	vbox_container->connect(SceneStringName(resized), callable_mp(this, &EditorToaster::_update_vbox_position));
 	add_child(vbox_container);
 
@@ -587,7 +587,7 @@ EditorToaster::EditorToaster() {
 
 	// Disable notification button.
 	disable_notifications_panel = memnew(PanelContainer);
-	disable_notifications_panel->set_as_top_level(true);
+	disable_notifications_panel->set_bring_to_top(true);
 	disable_notifications_panel->add_theme_style_override(SceneStringName(panel), info_panel_style_background);
 	add_child(disable_notifications_panel);
 

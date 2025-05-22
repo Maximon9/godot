@@ -911,7 +911,7 @@ EditorAudioBus::EditorAudioBus(EditorAudioBuses *p_buses, bool p_is_master) {
 
 	audio_value_preview_box = memnew(Panel);
 	slider->add_child(audio_value_preview_box);
-	audio_value_preview_box->set_as_top_level(true);
+	audio_value_preview_box->set_bring_to_top(true);
 	audio_value_preview_box->set_mouse_filter(INPUT_FILTER_PASS);
 	audio_value_preview_box->hide();
 
