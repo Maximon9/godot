@@ -120,14 +120,32 @@ protected:
 	bool _was_pressed_by_touch() const;
 	void _accessibility_action_click(const Variant &p_data);
 
+	void _validate_property(PropertyInfo &p_property) const;
+
 	GDVIRTUAL0(_pressed)
 	GDVIRTUAL1(_toggled, bool)
 
 public:
 	DrawMode get_draw_mode() const;
 
+	bool mouse_hold_outside() const;
+
+	bool mouse_press_on_exit() const;
+
+	bool mouse_press_drag() const;
+
+	bool mouse_allow_hover() const;
+
 	void set_mouse_options(BitField<ButtonOptions> p_flags);
 	BitField<ButtonOptions> get_mouse_options() const;
+
+	bool touch_hold_outside() const;
+
+	bool touch_press_on_exit() const;
+
+	bool touch_press_drag() const;
+
+	bool touch_allow_hover() const;
 
 	void set_touch_options(BitField<ButtonOptions> p_flags);
 	BitField<ButtonOptions> get_touch_options() const;

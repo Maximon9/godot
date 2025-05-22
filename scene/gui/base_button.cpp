@@ -135,6 +135,19 @@ void BaseButton::_accessibility_action_click(const Variant &p_data) {
 	queue_redraw();
 }
 
+void BaseButton::_validate_property(PropertyInfo &p_property) const {
+	if (p_property.name == "mouse_options") {
+		if (mouse_action_mode == ACTION_MODE_BUTTON_PRESS || mouse_hold_outside()) {
+			p_property.hint_string = "Hold Outside:1,Press Drag:4,Allow Hover:8";
+		}
+	}
+	if (p_property.name == "touch_options") {
+		if (touch_action_mode == ACTION_MODE_BUTTON_PRESS || touch_hold_outside()) {
+			p_property.hint_string = "Hold Outside:1,Press Drag:4,Allow Hover:8";
+		}
+	}
+}
+
 void BaseButton::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_ACCESSIBILITY_UPDATE: {
@@ -384,6 +397,22 @@ BaseButton::DrawMode BaseButton::get_draw_mode() const {
 	return draw_mode;
 }
 
+bool BaseButton::mouse_hold_outside() const {
+	return mouse_options.has_flag(BUTTON_OPTIONS_HOLD_OUTSIDE);
+}
+
+bool BaseButton::mouse_press_on_exit() const {
+	return mouse_options.has_flag(BUTTON_OPTIONS_PRESS_ON_EXIT);
+}
+
+bool BaseButton::mouse_press_drag() const {
+	return mouse_options.has_flag(BUTTON_OPTIONS_PRESS_DRAG);
+}
+
+bool BaseButton::mouse_allow_hover() const {
+	return mouse_options.has_flag(BUTTON_OPTIONS_ALLOW_HOVER);
+}
+
 void BaseButton::set_mouse_options(BitField<ButtonOptions> p_flags) {
 	if (mouse_options == p_flags) {
 		return;
@@ -392,6 +421,22 @@ void BaseButton::set_mouse_options(BitField<ButtonOptions> p_flags) {
 }
 BitField<BaseButton::ButtonOptions> BaseButton::get_mouse_options() const {
 	return mouse_options;
+}
+
+bool BaseButton::touch_hold_outside() const {
+	return touch_options.has_flag(BUTTON_OPTIONS_HOLD_OUTSIDE);
+}
+
+bool BaseButton::touch_press_on_exit() const {
+	return touch_options.has_flag(BUTTON_OPTIONS_PRESS_ON_EXIT);
+}
+
+bool BaseButton::touch_press_drag() const {
+	return touch_options.has_flag(BUTTON_OPTIONS_PRESS_DRAG);
+}
+
+bool BaseButton::touch_allow_hover() const {
+	return touch_options.has_flag(BUTTON_OPTIONS_ALLOW_HOVER);
 }
 
 void BaseButton::set_touch_options(BitField<ButtonOptions> p_flags) {
@@ -631,11 +676,21 @@ void BaseButton::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_button_mask", "flags"), &BaseButton::set_button_mask);
 	ClassDB::bind_method(D_METHOD("get_button_mask"), &BaseButton::get_button_mask);
 
+	ClassDB::bind_method(D_METHOD("mouse_hold_outside"), &BaseButton::mouse_hold_outside);
+	ClassDB::bind_method(D_METHOD("mouse_press_on_exit"), &BaseButton::mouse_press_on_exit);
+	ClassDB::bind_method(D_METHOD("mouse_press_drag"), &BaseButton::mouse_press_drag);
+	ClassDB::bind_method(D_METHOD("mouse_allow_hover"), &BaseButton::mouse_allow_hover);
+
 	ClassDB::bind_method(D_METHOD("set_mouse_options", "flags"), &BaseButton::set_mouse_options);
 	ClassDB::bind_method(D_METHOD("get_mouse_options"), &BaseButton::get_mouse_options);
 
 	ClassDB::bind_method(D_METHOD("set_touch_action_mode", "mode"), &BaseButton::set_touch_action_mode);
 	ClassDB::bind_method(D_METHOD("get_touch_action_mode"), &BaseButton::get_touch_action_mode);
+
+	ClassDB::bind_method(D_METHOD("touch_hold_outside"), &BaseButton::touch_hold_outside);
+	ClassDB::bind_method(D_METHOD("touch_press_on_exit"), &BaseButton::touch_press_on_exit);
+	ClassDB::bind_method(D_METHOD("touch_press_drag"), &BaseButton::touch_press_drag);
+	ClassDB::bind_method(D_METHOD("touch_allow_hover"), &BaseButton::touch_allow_hover);
 
 	ClassDB::bind_method(D_METHOD("set_touch_options", "mode"), &BaseButton::set_touch_options);
 	ClassDB::bind_method(D_METHOD("get_touch_options"), &BaseButton::get_touch_options);
@@ -667,12 +722,25 @@ void BaseButton::_bind_methods() {
 
 	ADD_GROUP("Input", "");
 	ADD_SUBGROUP("Mouse", "mouse_");
+
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "mouse_action_mode", PROPERTY_HINT_ENUM, "Button Press,Button Release"), "set_mouse_action_mode", "get_mouse_action_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "mouse_button_mask", PROPERTY_HINT_FLAGS, "Mouse Left,Mouse Right,Mouse Middle"), "set_button_mask", "get_button_mask");
+
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "mouse_hold_outside", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_INTERNAL), "", "mouse_hold_outside");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "mouse_press_on_exit", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_INTERNAL), "", "mouse_press_on_exit");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "mouse_press_drag", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_INTERNAL), "", "mouse_press_drag");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "mouse_allow_hover", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_INTERNAL), "", "mouse_allow_hover");
+
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "mouse_options", PROPERTY_HINT_FLAGS, "Hold Outside,Press on Exit,Press Drag,Allow Hover"), "set_mouse_options", "get_mouse_options");
 
 	ADD_SUBGROUP("Touch", "touch_");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "touch_action_mode", PROPERTY_HINT_ENUM, "Button Press,Button Release"), "set_touch_action_mode", "get_touch_action_mode");
+
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "touch_hold_outside", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_INTERNAL), "", "touch_hold_outside");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "touch_press_on_exit", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_INTERNAL), "", "touch_press_on_exit");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "touch_press_drag", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_INTERNAL), "", "touch_press_drag");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "touch_allow_hover", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_INTERNAL), "", "touch_allow_hover");
+
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "touch_options", PROPERTY_HINT_FLAGS, "Hold Outside,Press on Exit,Press Drag,Allow Hover"), "set_touch_options", "get_touch_options");
 
 	ADD_GROUP("Shortcut", "");
