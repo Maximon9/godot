@@ -1,9 +1,9 @@
 # from glob import glob
 from json import dumps, loads
 from os import environ
-from os.path import samefile
 from pathlib import Path
 from typing import TypedDict, List, NotRequired
+from re import search
 
 
 class C_CppConfig(TypedDict):
@@ -36,41 +36,59 @@ def contains_header_files(dir: Path):
 
 
 def grab_all_header_folders(
-    path: Path, exclude: List[str], include_paths: List[str], include_all: bool
+    path: Path,
+    exclude: List[str],
+    include_paths: List[str],
+    include_files: bool,
+    include_all_folders: bool,
 ):
     for entry in path.iterdir():
         if entry.is_dir():
             if contains_header_files(entry):
-                path_str = str(entry)
-
                 has_ex_file: bool = False
                 for ex_path in exclude:
-                    if samefile(path_str, ex_path):
+                    if entry.samefile(ex_path):
                         has_ex_file = True
                         break
 
                 if has_ex_file:
                     continue
 
-                if samefile(path_str, "platform"):
-                    workspace_path_str = "${workspaceFolder}\\" + f"{path_str}\\" + "*"
-                    grab_all_header_folders(entry, exclude, include_paths, include_all)
-                else:
-                    workspace_path_str = (
-                        "${workspaceFolder}\\"
-                        + f"{path_str}\\"
-                        + ("*" if include_all else "**")
-                    )
+                if include_files:
+                    for file_entry in entry.iterdir():
+                        if (
+                            file_entry.is_file()
+                            and search(".*\.h(pp)?", str(file_entry)) != None
+                        ):
+                            workspace_path_str = (
+                                "${workspaceFolder}\\" + f"{file_entry}"
+                            )
+                            include_paths.append(workspace_path_str)
 
-                include_paths.append(workspace_path_str)
-            elif include_all == False:
-                grab_all_header_folders(entry, exclude, include_paths, include_all)
-            if include_all:
-                grab_all_header_folders(entry, exclude, include_paths, include_all)
+                else:
+                    if entry.samefile("platform"):
+                        workspace_path_str = "${workspaceFolder}\\" + f"{entry}"
+                    else:
+                        workspace_path_str = (
+                            "${workspaceFolder}\\"
+                            + f"{entry}{"" if include_all_folders else "\\**"}"
+                        )
+                    include_paths.append(workspace_path_str)
+            elif include_all_folders == False and include_files == False:
+                grab_all_header_folders(
+                    entry, exclude, include_paths, include_files, include_all_folders
+                )
+            if include_all_folders or include_files:
+                grab_all_header_folders(
+                    entry, exclude, include_paths, include_files, include_all_folders
+                )
 
 
 def add_vscode_includes(
-    platform: str, exclude: List[str] = [], include_all: bool = False
+    platform: str,
+    exclude: List[str] = [],
+    include_files: bool = False,
+    include_all_folders: bool = False,
 ) -> None:
     if is_running_in_vscode_terminal() == False:
         return
@@ -137,6 +155,8 @@ def add_vscode_includes(
     include_paths.append(
         "${workspaceFolder}\\*",
     )
-    grab_all_header_folders(Path("."), exclude, include_paths, include_all)
+    grab_all_header_folders(
+        Path("."), exclude, include_paths, include_files, include_all_folders
+    )
 
     c_cpp_properties_path_obj.write_text(dumps(c_cpp_json_object, indent=4))

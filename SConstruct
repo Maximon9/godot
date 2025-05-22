@@ -1403,4 +1403,4 @@ if not env.GetOption("clean") and not env.GetOption("help"):
     methods.prepare_purge(env)
     methods.prepare_timer()
 
-add_vscode_includes(env["platform"])
+add_vscode_includes(env["platform"], include_all_folders=True)

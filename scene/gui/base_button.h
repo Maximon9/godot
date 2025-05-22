@@ -62,16 +62,24 @@ public:
 #pragma endregion
 
 private:
-	BitField<MouseButtonMask> button_mask = MouseButtonMask::LEFT;
-	bool toggle_mode = false;
-	bool shortcut_in_tooltip = true;
 	bool was_mouse_pressed = false;
-	bool keep_pressed_outside = false;
+	BitField<MouseButtonMask> button_mask = MouseButtonMask::LEFT;
+	ActionMode mouse_action_mode = ACTION_MODE_BUTTON_RELEASE;
+
+	bool toggle_mode = false;
+
+	bool shortcut_in_tooltip = true;
 	bool shortcut_feedback = true;
 	Ref<Shortcut> shortcut;
 	ObjectID shortcut_context;
 
-	ActionMode action_mode = ACTION_MODE_BUTTON_RELEASE;
+	bool was_touch_pressed = false;
+	ActionMode touch_action_mode = ACTION_MODE_BUTTON_RELEASE;
+
+	int touch_index = -1;
+
+	bool maintain_touch_index = false;
+
 	struct Status {
 		bool pressed = false;
 		bool hovering = false;
@@ -82,10 +90,6 @@ private:
 	} status;
 
 	DrawMode draw_mode = DRAW_NORMAL;
-
-	int touch_index = -1;
-
-	bool maintain_touch_index = false;
 
 	Ref<ButtonGroup> button_group;
 
@@ -111,6 +115,7 @@ protected:
 	void _notification(int p_what);
 
 	bool _was_pressed_by_mouse() const;
+	bool _was_pressed_by_touch() const;
 	void _accessibility_action_click(const Variant &p_data);
 
 	GDVIRTUAL0(_pressed)
@@ -142,11 +147,14 @@ public:
 	void set_disabled(bool p_disabled);
 	bool is_disabled() const;
 
-	void set_action_mode(ActionMode p_mode);
-	ActionMode get_action_mode() const;
+	void set_mouse_action_mode(ActionMode p_mode);
+	ActionMode get_mouse_action_mode() const;
 
-	void set_keep_pressed_outside(bool p_on);
-	bool is_keep_pressed_outside() const;
+	void set_touch_action_mode(ActionMode p_mode);
+	ActionMode get_touch_action_mode() const;
+
+	// void set_keep_pressed_outside(bool p_on);
+	// bool is_keep_pressed_outside() const;
 
 	void set_shortcut_feedback(bool p_enable);
 	bool is_shortcut_feedback() const;

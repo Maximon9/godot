@@ -246,8 +246,8 @@ void BaseButton::on_action_event(Ref<InputEvent> p_event) {
 	if (status.press_attempt && status.pressing_inside) {
 		if (toggle_mode) {
 			bool is_pressed = p_event->is_pressed();
-			if ((is_pressed && action_mode == ACTION_MODE_BUTTON_PRESS) || (!is_pressed && action_mode == ACTION_MODE_BUTTON_RELEASE)) {
-				if (action_mode == ACTION_MODE_BUTTON_PRESS) {
+			if ((is_pressed && mouse_action_mode == ACTION_MODE_BUTTON_PRESS) || (!is_pressed && mouse_action_mode == ACTION_MODE_BUTTON_RELEASE)) {
+				if (mouse_action_mode == ACTION_MODE_BUTTON_PRESS) {
 					status.press_attempt = false;
 					status.pressing_inside = false;
 				}
@@ -261,7 +261,7 @@ void BaseButton::on_action_event(Ref<InputEvent> p_event) {
 				queue_accessibility_update();
 			}
 		} else {
-			if ((p_event->is_pressed() && action_mode == ACTION_MODE_BUTTON_PRESS) || (!p_event->is_pressed() && action_mode == ACTION_MODE_BUTTON_RELEASE)) {
+			if ((p_event->is_pressed() && mouse_action_mode == ACTION_MODE_BUTTON_PRESS) || (!p_event->is_pressed() && mouse_action_mode == ACTION_MODE_BUTTON_RELEASE)) {
 				_pressed();
 			}
 		}
@@ -428,12 +428,20 @@ bool BaseButton::is_shortcut_in_tooltip_enabled() const {
 	return shortcut_in_tooltip;
 }
 
-void BaseButton::set_action_mode(ActionMode p_mode) {
-	action_mode = p_mode;
+void BaseButton::set_mouse_action_mode(ActionMode p_mode) {
+	mouse_action_mode = p_mode;
 }
 
-BaseButton::ActionMode BaseButton::get_action_mode() const {
-	return action_mode;
+BaseButton::ActionMode BaseButton::get_mouse_action_mode() const {
+	return mouse_action_mode;
+}
+
+void BaseButton::set_touch_action_mode(ActionMode p_mode) {
+	touch_action_mode = p_mode;
+}
+
+BaseButton::ActionMode BaseButton::get_touch_action_mode() const {
+	return touch_action_mode;
 }
 
 void BaseButton::set_button_mask(BitField<MouseButtonMask> p_mask) {
@@ -444,13 +452,13 @@ BitField<MouseButtonMask> BaseButton::get_button_mask() const {
 	return button_mask;
 }
 
-void BaseButton::set_keep_pressed_outside(bool p_on) {
-	keep_pressed_outside = p_on;
-}
+// void BaseButton::set_keep_pressed_outside(bool p_on) {
+// 	keep_pressed_outside = p_on;
+// }
 
-bool BaseButton::is_keep_pressed_outside() const {
-	return keep_pressed_outside;
-}
+// bool BaseButton::is_keep_pressed_outside() const {
+// 	return keep_pressed_outside;
+// }
 
 void BaseButton::set_shortcut_feedback(bool p_enable) {
 	shortcut_feedback = p_enable;
@@ -564,6 +572,10 @@ bool BaseButton::_was_pressed_by_mouse() const {
 	return was_mouse_pressed;
 }
 
+bool BaseButton::_was_pressed_by_touch() const {
+	return was_mouse_pressed;
+}
+
 PackedStringArray BaseButton::get_configuration_warnings() const {
 	PackedStringArray warnings = Control::get_configuration_warnings();
 
@@ -593,13 +605,15 @@ void BaseButton::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_shortcut_in_tooltip_enabled"), &BaseButton::is_shortcut_in_tooltip_enabled);
 	ClassDB::bind_method(D_METHOD("set_disabled", "disabled"), &BaseButton::set_disabled);
 	ClassDB::bind_method(D_METHOD("is_disabled"), &BaseButton::is_disabled);
-	ClassDB::bind_method(D_METHOD("set_action_mode", "mode"), &BaseButton::set_action_mode);
-	ClassDB::bind_method(D_METHOD("get_action_mode"), &BaseButton::get_action_mode);
+	ClassDB::bind_method(D_METHOD("set_mouse_action_mode", "mode"), &BaseButton::set_mouse_action_mode);
+	ClassDB::bind_method(D_METHOD("get_mouse_action_mode"), &BaseButton::get_mouse_action_mode);
+	ClassDB::bind_method(D_METHOD("set_touch_action_mode", "mode"), &BaseButton::set_touch_action_mode);
+	ClassDB::bind_method(D_METHOD("get_touch_action_mode"), &BaseButton::get_touch_action_mode);
 	ClassDB::bind_method(D_METHOD("set_button_mask", "mask"), &BaseButton::set_button_mask);
 	ClassDB::bind_method(D_METHOD("get_button_mask"), &BaseButton::get_button_mask);
 	ClassDB::bind_method(D_METHOD("get_draw_mode"), &BaseButton::get_draw_mode);
-	ClassDB::bind_method(D_METHOD("set_keep_pressed_outside", "enabled"), &BaseButton::set_keep_pressed_outside);
-	ClassDB::bind_method(D_METHOD("is_keep_pressed_outside"), &BaseButton::is_keep_pressed_outside);
+	// ClassDB::bind_method(D_METHOD("set_keep_pressed_outside", "enabled"), &BaseButton::set_keep_pressed_outside);
+	// ClassDB::bind_method(D_METHOD("is_keep_pressed_outside"), &BaseButton::is_keep_pressed_outside);
 	ClassDB::bind_method(D_METHOD("set_shortcut_feedback", "enabled"), &BaseButton::set_shortcut_feedback);
 	ClassDB::bind_method(D_METHOD("is_shortcut_feedback"), &BaseButton::is_shortcut_feedback);
 
@@ -624,12 +638,12 @@ void BaseButton::_bind_methods() {
 
 	ADD_GROUP("Input", "");
 	ADD_SUBGROUP("Mouse", "mouse_");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "mouse_action_mode", PROPERTY_HINT_ENUM, "Button Press,Button Release"), "set_action_mode", "get_action_mode");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "mouse_action_mode", PROPERTY_HINT_ENUM, "Button Press,Button Release"), "set_mouse_action_mode", "get_mouse_action_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "mouse_button_mask", PROPERTY_HINT_FLAGS, "Mouse Left,Mouse Right,Mouse Middle"), "set_button_mask", "get_button_mask");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "mouse_options", PROPERTY_HINT_FLAGS, "Hold Outside,Press on Exit,Press Drag,Allow Hover"), "set_mouse_options", "get_mouse_options");
 
 	ADD_SUBGROUP("Touch", "touch_");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "touch_action_mode", PROPERTY_HINT_ENUM, "Button Press,Button Release"), "set_action_mode", "get_action_mode");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "touch_action_mode", PROPERTY_HINT_ENUM, "Button Press,Button Release"), "set_touch_action_mode", "get_touch_action_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "touch_options", PROPERTY_HINT_FLAGS, "Hold Outside,Press on Exit,Press Drag,Allow Hover"), "set_touch_options", "get_touch_options");
 
 	ADD_GROUP("Shortcut", "");
