@@ -627,10 +627,19 @@ void BaseButton::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_disabled"), &BaseButton::is_disabled);
 	ClassDB::bind_method(D_METHOD("set_mouse_action_mode", "mode"), &BaseButton::set_mouse_action_mode);
 	ClassDB::bind_method(D_METHOD("get_mouse_action_mode"), &BaseButton::get_mouse_action_mode);
+
+	ClassDB::bind_method(D_METHOD("set_button_mask", "flags"), &BaseButton::set_button_mask);
+	ClassDB::bind_method(D_METHOD("get_button_mask"), &BaseButton::get_button_mask);
+
+	ClassDB::bind_method(D_METHOD("set_mouse_options", "flags"), &BaseButton::set_mouse_options);
+	ClassDB::bind_method(D_METHOD("get_mouse_options"), &BaseButton::get_mouse_options);
+
 	ClassDB::bind_method(D_METHOD("set_touch_action_mode", "mode"), &BaseButton::set_touch_action_mode);
 	ClassDB::bind_method(D_METHOD("get_touch_action_mode"), &BaseButton::get_touch_action_mode);
-	ClassDB::bind_method(D_METHOD("set_button_mask", "mask"), &BaseButton::set_button_mask);
-	ClassDB::bind_method(D_METHOD("get_button_mask"), &BaseButton::get_button_mask);
+
+	ClassDB::bind_method(D_METHOD("set_touch_options", "mode"), &BaseButton::set_touch_options);
+	ClassDB::bind_method(D_METHOD("get_touch_options"), &BaseButton::get_touch_options);
+
 	ClassDB::bind_method(D_METHOD("get_draw_mode"), &BaseButton::get_draw_mode);
 	// ClassDB::bind_method(D_METHOD("set_keep_pressed_outside", "enabled"), &BaseButton::set_keep_pressed_outside);
 	// ClassDB::bind_method(D_METHOD("is_keep_pressed_outside"), &BaseButton::is_keep_pressed_outside);
