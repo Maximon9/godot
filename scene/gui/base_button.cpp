@@ -75,44 +75,42 @@ void BaseButton::_unpress_group() {
 void BaseButton::gui_input(const Ref<InputEvent> &p_event) {
 	ERR_FAIL_COND(p_event.is_null());
 
-	if (status.disabled) { // no interaction with disabled button
-		// run_draw_mode();
-		return;
-	}
+	if (status.disabled == false) { // no interaction with disabled button
+		Ref<InputEventMouseButton> mouse_button = p_event;
+		bool ui_accept = p_event->is_action("ui_accept", true) && !p_event->is_echo();
 
-	Ref<InputEventMouseButton> mouse_button = p_event;
-	bool ui_accept = p_event->is_action("ui_accept", true) && !p_event->is_echo();
+		bool button_masked = mouse_button.is_valid() && button_mask.has_flag(mouse_button_to_mask(mouse_button->get_button_index()));
+		if (button_masked || ui_accept) {
+			was_mouse_pressed = button_masked;
+			on_action_event(p_event);
+			was_mouse_pressed = false;
 
-	bool button_masked = mouse_button.is_valid() && button_mask.has_flag(mouse_button_to_mask(mouse_button->get_button_index()));
-	if (button_masked || ui_accept) {
-		was_mouse_pressed = button_masked;
-		on_action_event(p_event);
-		was_mouse_pressed = false;
+			return;
+		}
 
-		return;
-	}
-
-	Ref<InputEventMouseMotion> mouse_motion = p_event;
-	if (mouse_motion.is_valid()) {
-		if (status.press_attempt) {
-			bool last_press_inside = status.pressing_inside;
-			status.pressing_inside = has_point(mouse_motion->get_position());
-			if (last_press_inside != status.pressing_inside) {
-				queue_redraw();
+		Ref<InputEventMouseMotion> mouse_motion = p_event;
+		if (mouse_motion.is_valid()) {
+			if (status.press_attempt) {
+				bool last_press_inside = status.pressing_inside;
+				status.pressing_inside = has_point(mouse_motion->get_position());
+				if (last_press_inside != status.pressing_inside) {
+					queue_redraw();
+				}
 			}
 		}
-	}
 
-	// Ref<InputEventScreenDrag> touch_drag = p_event;
-	// if (touch_drag.is_valid()) {
-	// 	if (status.press_attempt) {
-	// 		bool last_press_inside = status.pressing_inside;
-	// 		status.pressing_inside = has_point(mouse_motion->get_position());
-	// 		if (last_press_inside != status.pressing_inside) {
-	// 			queue_redraw();
-	// 		}
-	// 	}
-	// }
+		// Ref<InputEventScreenDrag> touch_drag = p_event;
+		// if (touch_drag.is_valid()) {
+		// 	if (status.press_attempt) {
+		// 		bool last_press_inside = status.pressing_inside;
+		// 		status.pressing_inside = has_point(mouse_motion->get_position());
+		// 		if (last_press_inside != status.pressing_inside) {
+		// 			queue_redraw();
+		// 		}
+		// 	}
+		// }
+	}
+	run_draw_mode();
 }
 
 void BaseButton::_accessibility_action_click(const Variant &p_data) {
@@ -180,13 +178,15 @@ void BaseButton::_notification(int p_what) {
 		} break;
 
 		case NOTIFICATION_MOUSE_ENTER: {
-			status.hovering = true;
+			run_draw_mode();
+			// status.hovering = true;
 			queue_accessibility_update();
 			queue_redraw();
 		} break;
 
 		case NOTIFICATION_MOUSE_EXIT: {
-			status.hovering = false;
+			run_draw_mode();
+			// status.hovering = false;
 			queue_accessibility_update();
 			queue_redraw();
 		} break;
@@ -204,6 +204,7 @@ void BaseButton::_notification(int p_what) {
 		} break;
 
 		case NOTIFICATION_FOCUS_EXIT: {
+			run_draw_mode();
 			if (status.press_attempt) {
 				status.press_attempt = false;
 				queue_redraw();
@@ -222,12 +223,13 @@ void BaseButton::_notification(int p_what) {
 			if (p_what == NOTIFICATION_VISIBILITY_CHANGED && is_visible_in_tree()) {
 				break;
 			}
-			if (!toggle_mode) {
-				status.pressed = false;
-			}
-			status.hovering = false;
-			status.press_attempt = false;
-			status.pressing_inside = false;
+			run_draw_mode();
+			// if (!toggle_mode) {
+			// 	status.pressed = false;
+			// }
+			// status.hovering = false;
+			// status.press_attempt = false;
+			// status.pressing_inside = false;
 		} break;
 	}
 }

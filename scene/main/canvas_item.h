@@ -97,7 +97,8 @@ private:
 	bool visible = true;
 	bool parent_visible_in_tree = false;
 	bool pending_update = false;
-	bool top_level = false;
+	bool bring_to_top = false;
+	bool bring_to_bottom = false;
 	bool drawing = false;
 	bool block_transform_notify = false;
 	bool behind = false;
@@ -105,6 +106,8 @@ private:
 	bool notify_local_transform = false;
 	bool notify_transform = false;
 	bool hide_clip_children = false;
+
+	bool bring_to_bottom = false;
 
 	ClipChildrenMode clip_children_mode = CLIP_CHILDREN_DISABLED;
 
@@ -123,13 +126,16 @@ private:
 	_FORCE_INLINE_ bool _is_global_invalid() const { return is_group_processing() ? global_invalid.mt.is_set() : global_invalid.st; }
 	void _set_global_invalid(bool p_invalid) const;
 
-	void _top_level_raise_self();
+	void _bring_to_top_raise_self();
 
 	void _propagate_visibility_changed(bool p_parent_visible_in_tree);
 	void _handle_visibility_change(bool p_visible);
 
-	virtual void _top_level_changed();
-	virtual void _top_level_changed_on_parent();
+	virtual void _bring_to_top_changed();
+	virtual void _bring_to_top_changed_on_parent();
+
+	virtual void _bring_to_bottom_changed();
+	virtual void _bring_to_bottom_changed_on_parent();
 
 	void _redraw_callback();
 
@@ -335,8 +341,11 @@ public:
 
 	/* RECT / TRANSFORM */
 
-	void set_as_top_level(bool p_top_level);
-	bool is_set_as_top_level() const;
+	void set_bring_to_top(bool p_bring_to_top);
+	bool brought_to_top() const;
+
+	void set_bring_to_bottom(bool p_bring_to_bottom);
+	bool brought_to_bottom() const;
 
 	void set_draw_behind_parent(bool p_enable);
 	bool is_draw_behind_parent_enabled() const;
@@ -350,7 +359,7 @@ public:
 	virtual Transform2D get_global_transform_with_canvas() const;
 	virtual Transform2D get_screen_transform() const;
 
-	CanvasItem *get_top_level() const;
+	CanvasItem *get_bring_to_top() const;
 	_FORCE_INLINE_ RID get_canvas_item() const {
 		return canvas_item;
 	}

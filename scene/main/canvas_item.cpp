@@ -103,7 +103,7 @@ void CanvasItem::_handle_visibility_change(bool p_visible) {
 	for (int i = 0; i < get_child_count(); i++) {
 		CanvasItem *c = Object::cast_to<CanvasItem>(get_child(i));
 
-		if (c) { // Should the top_levels stop propagation? I think so, but...
+		if (c) { // Should the bring_to_tops stop propagation? I think so, but...
 			c->_propagate_visibility_changed(p_visible);
 		}
 	}
@@ -222,7 +222,7 @@ void CanvasItem::_set_global_invalid(bool p_invalid) const {
 	}
 }
 
-void CanvasItem::_top_level_raise_self() {
+void CanvasItem::_bring_to_top_raise_self() {
 	if (!is_inside_tree()) {
 		return;
 	}
@@ -235,7 +235,7 @@ void CanvasItem::_top_level_raise_self() {
 }
 
 void CanvasItem::_enter_canvas() {
-	// Resolves to nullptr if the node is top_level.
+	// Resolves to nullptr if the node is bring_to_top.
 	CanvasItem *parent_item = get_parent_item();
 
 	if (get_parent()) {
@@ -438,7 +438,7 @@ void CanvasItem::update_draw_order() {
 	}
 
 	if (canvas_group != StringName()) {
-		get_tree()->call_group_flags(SceneTree::GROUP_CALL_UNIQUE | SceneTree::GROUP_CALL_DEFERRED, canvas_group, "_top_level_raise_self");
+		get_tree()->call_group_flags(SceneTree::GROUP_CALL_UNIQUE | SceneTree::GROUP_CALL_DEFERRED, canvas_group, "_bring_to_top_raise_self");
 	} else {
 		ERR_FAIL_NULL_MSG(get_parent_item(), "Moved child is in incorrect state (no canvas group, no canvas item parent).");
 		RenderingServer::get_singleton()->canvas_item_set_draw_index(canvas_item, get_index());
@@ -497,53 +497,97 @@ Color CanvasItem::get_modulate_in_tree() const {
 	return final_modulate;
 }
 
-void CanvasItem::set_as_top_level(bool p_top_level) {
+void CanvasItem::set_bring_to_top(bool p_bring_to_top) {
 	ERR_MAIN_THREAD_GUARD;
-	if (top_level == p_top_level) {
+	if (bring_to_top == p_bring_to_top) {
 		return;
 	}
 
 	if (!is_inside_tree()) {
-		top_level = p_top_level;
+		bring_to_top = p_bring_to_top;
 		_notify_transform();
 		return;
 	}
 
 	_exit_canvas();
-	top_level = p_top_level;
-	_top_level_changed();
+	bring_to_top = p_bring_to_top;
+	_bring_to_top_changed();
 	_enter_canvas();
 
 	_notify_transform();
 
 	if (get_viewport()) {
-		get_viewport()->canvas_item_top_level_changed();
+		get_viewport()->canvas_item_bring_to_top_changed();
 	}
 }
 
-void CanvasItem::_top_level_changed() {
-	// Inform children that top_level status has changed on a parent.
+void CanvasItem::_bring_to_top_changed() {
+	// Inform children that bring_to_top status has changed on a parent.
 	int children = get_child_count();
 	for (int i = 0; i < children; i++) {
 		CanvasItem *child = Object::cast_to<CanvasItem>(get_child(i));
 		if (child) {
-			child->_top_level_changed_on_parent();
+			child->_bring_to_top_changed_on_parent();
 		}
 	}
 }
 
-void CanvasItem::_top_level_changed_on_parent() {
-	// Inform children that top_level status has changed on a parent.
-	_top_level_changed();
+void CanvasItem::_bring_to_top_changed_on_parent() {
+	// Inform children that bring_to_top status has changed on a parent.
+	_bring_to_top_changed();
 }
 
-bool CanvasItem::is_set_as_top_level() const {
-	return top_level;
+bool CanvasItem::brought_to_top() const {
+	return bring_to_top;
+}
+
+void CanvasItem::set_bring_to_bottom(bool p_bring_to_bottom) {
+	ERR_MAIN_THREAD_GUARD;
+	if (bring_to_bottom == p_bring_to_bottom) {
+		return;
+	}
+
+	if (!is_inside_tree()) {
+		bring_to_bottom = p_bring_to_bottom;
+		_notify_transform();
+		return;
+	}
+
+	_exit_canvas();
+	bring_to_bottom = p_bring_to_bottom;
+	_bring_to_bottom_changed();
+	_enter_canvas();
+
+	_notify_transform();
+
+	if (get_viewport()) {
+		get_viewport()->canvas_item_bring_to_bottom_changed();
+	}
+}
+
+void CanvasItem::_bring_to_bottom_changed() {
+	// Inform children that bring_to_bottom status has changed on a parent.
+	int children = get_child_count();
+	for (int i = 0; i < children; i++) {
+		CanvasItem *child = Object::cast_to<CanvasItem>(get_child(i));
+		if (child) {
+			child->_bring_to_bottom_changed_on_parent();
+		}
+	}
+}
+
+void CanvasItem::_bring_to_bottom_changed_on_parent() {
+	// Inform children that bring_to_bottom status has changed on a parent.
+	_bring_to_bottom_changed();
+}
+
+bool CanvasItem::brought_to_bottom() const {
+	return bring_to_bottom;
 }
 
 CanvasItem *CanvasItem::get_parent_item() const {
 	ERR_READ_THREAD_GUARD_V(nullptr);
-	if (top_level) {
+	if (bring_to_top) {
 		return nullptr;
 	}
 
@@ -1057,7 +1101,7 @@ void CanvasItem::_notify_transform(CanvasItem *p_node) {
 	}
 
 	for (CanvasItem *ci : p_node->children_items) {
-		if (ci->top_level) {
+		if (ci->bring_to_top) {
 			continue;
 		}
 		_notify_transform(ci);
@@ -1112,10 +1156,10 @@ ObjectID CanvasItem::get_canvas_layer_instance_id() const {
 	}
 }
 
-CanvasItem *CanvasItem::get_top_level() const {
+CanvasItem *CanvasItem::get_bring_to_top() const {
 	ERR_READ_THREAD_GUARD_V(nullptr);
 	CanvasItem *ci = const_cast<CanvasItem *>(this);
-	while (!ci->top_level && Object::cast_to<CanvasItem>(ci->get_parent())) {
+	while (!ci->bring_to_top && Object::cast_to<CanvasItem>(ci->get_parent())) {
 		ci = Object::cast_to<CanvasItem>(ci->get_parent());
 	}
 
@@ -1126,7 +1170,7 @@ Ref<World2D> CanvasItem::get_world_2d() const {
 	ERR_READ_THREAD_GUARD_V(Ref<World2D>());
 	ERR_FAIL_COND_V(!is_inside_tree(), Ref<World2D>());
 
-	CanvasItem *tl = get_top_level();
+	CanvasItem *tl = get_bring_to_top();
 
 	if (tl->get_viewport()) {
 		return tl->get_viewport()->find_world_2d();
@@ -1293,7 +1337,7 @@ PackedStringArray CanvasItem::get_configuration_warnings() const {
 }
 
 void CanvasItem::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("_top_level_raise_self"), &CanvasItem::_top_level_raise_self);
+	ClassDB::bind_method(D_METHOD("_bring_to_top_raise_self"), &CanvasItem::_bring_to_top_raise_self);
 
 #ifdef TOOLS_ENABLED
 	ClassDB::bind_method(D_METHOD("_edit_set_state", "state"), &CanvasItem::_edit_set_state);
@@ -1325,8 +1369,11 @@ void CanvasItem::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("queue_redraw"), &CanvasItem::queue_redraw);
 	ClassDB::bind_method(D_METHOD("move_to_front"), &CanvasItem::move_to_front);
 
-	ClassDB::bind_method(D_METHOD("set_as_top_level", "enable"), &CanvasItem::set_as_top_level);
-	ClassDB::bind_method(D_METHOD("is_set_as_top_level"), &CanvasItem::is_set_as_top_level);
+	ClassDB::bind_method(D_METHOD("set_bring_to_top", "enable"), &CanvasItem::set_bring_to_top);
+	ClassDB::bind_method(D_METHOD("brought_to_top"), &CanvasItem::brought_to_top);
+
+	ClassDB::bind_method(D_METHOD("set_bring_to_bottom", "enable"), &CanvasItem::set_bring_to_bottom);
+	ClassDB::bind_method(D_METHOD("brought_to_bottom"), &CanvasItem::brought_to_bottom);
 
 	ClassDB::bind_method(D_METHOD("set_light_mask", "light_mask"), &CanvasItem::set_light_mask);
 	ClassDB::bind_method(D_METHOD("get_light_mask"), &CanvasItem::get_light_mask);
@@ -1434,7 +1481,8 @@ void CanvasItem::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::COLOR, "modulate"), "set_modulate", "get_modulate");
 	ADD_PROPERTY(PropertyInfo(Variant::COLOR, "self_modulate"), "set_self_modulate", "get_self_modulate");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "show_behind_parent"), "set_draw_behind_parent", "is_draw_behind_parent_enabled");
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "top_level"), "set_as_top_level", "is_set_as_top_level");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "bring_to_top"), "set_bring_to_top", "brought_to_top");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "bring_to_bottom"), "set_bring_to_bottom", "brought_to_bottom");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "clip_children", PROPERTY_HINT_ENUM, "Disabled,Clip Only,Clip + Draw"), "set_clip_children_mode", "get_clip_children_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "light_mask", PROPERTY_HINT_LAYERS_2D_RENDER), "set_light_mask", "get_light_mask");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "visibility_layer", PROPERTY_HINT_LAYERS_2D_RENDER), "set_visibility_layer", "get_visibility_layer");
@@ -1612,7 +1660,7 @@ void CanvasItem::_update_texture_filter_changed(bool p_propagate) {
 
 	if (p_propagate) {
 		for (CanvasItem *E : children_items) {
-			if (!E->top_level && E->texture_filter == TEXTURE_FILTER_PARENT_NODE) {
+			if (!E->bring_to_top && E->texture_filter == TEXTURE_FILTER_PARENT_NODE) {
 				E->_update_texture_filter_changed(true);
 			}
 		}
@@ -1666,7 +1714,7 @@ void CanvasItem::_update_texture_repeat_changed(bool p_propagate) {
 
 	if (p_propagate) {
 		for (CanvasItem *E : children_items) {
-			if (!E->top_level && E->texture_repeat == TEXTURE_REPEAT_PARENT_NODE) {
+			if (!E->bring_to_top && E->texture_repeat == TEXTURE_REPEAT_PARENT_NODE) {
 				E->_update_texture_repeat_changed(true);
 			}
 		}
