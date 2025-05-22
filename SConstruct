@@ -1403,4 +1403,12 @@ if not env.GetOption("clean") and not env.GetOption("help"):
     methods.prepare_purge(env)
     methods.prepare_timer()
 
-add_vscode_includes(env["platform"], include_all_folders=True)
+add_vscode_includes(
+    env["platform"],
+    exclude=[
+        "tests\\core\\math",
+        "thirdparty\\embree\\common\\math",
+        "thirdparty\\jolt_physics\\Jolt\\Math",
+    ],
+    include_all_folders=True,
+)

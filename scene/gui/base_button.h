@@ -73,7 +73,7 @@ private:
 	int touch_index = -1;
 
 	bool maintain_touch_index = false;
-	BitField<ButtonOptions> touch_options = BUTTON_OPTIONS_HOLD_OUTSIDE | BUTTON_OPTIONS_ALLOW_HOVER;
+	BitField<ButtonOptions> touch_options = BUTTON_OPTIONS_HOLD_OUTSIDE;
 
 	bool toggle_mode = false;
 
